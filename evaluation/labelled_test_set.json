@@ -1,0 +1,66 @@
+[
+  {
+    "id": "TEST-01",
+    "type": "CONTRADICTED_CLAIM",
+    "text": "Get 50% off until 31 August on our annual plans.",
+    "expected_verdict": "CONTRADICTED",
+    "expected_rule_or_fact": "FACT-21",
+    "notes": "Approved discount is 30% until 15 August; contradicts ground truth."
+  },
+  {
+    "id": "TEST-02",
+    "type": "UNVERIFIABLE_CLAIM",
+    "text": "Verity is the #1 app in India, guaranteed!",
+    "expected_verdict": "UNVERIFIABLE",
+    "expected_rule_or_fact": "CLAIM-04",
+    "notes": "Superlative guarantee with zero approved citation in knowledge base."
+  },
+  {
+    "id": "TEST-03",
+    "type": "TERMINOLOGY_VIOLATION",
+    "text": "We pride ourselves on providing every client with dedicated support.",
+    "expected_verdict": "VIOLATION",
+    "expected_rule_or_fact": "TERM-12",
+    "notes": "Uses banned word 'client' instead of 'customer'."
+  },
+  {
+    "id": "TEST-04",
+    "type": "TONE_VIOLATION",
+    "text": "Hurry up and register right now or regret it later!",
+    "expected_verdict": "VIOLATION",
+    "expected_rule_or_fact": "TONE-03",
+    "notes": "FOMO urgency violates empathetic tone guidelines."
+  },
+  {
+    "id": "TEST-05",
+    "type": "ACCESSIBILITY_ISSUE",
+    "text": "Check out our new launch graphic [image: banner.png] today.",
+    "expected_verdict": "VIOLATION",
+    "expected_rule_or_fact": "ACC-01",
+    "notes": "Embedded image without descriptive alt-text."
+  },
+  {
+    "id": "TEST-06",
+    "type": "CORRECT_CLAIM",
+    "text": "Get 30% off on all annual plans until 15 August 2026.",
+    "expected_verdict": "CLEAN",
+    "expected_rule_or_fact": null,
+    "notes": "Accurate fact matching FACT-21 exactly; should produce zero false positives."
+  },
+  {
+    "id": "TEST-07",
+    "type": "CORRECT_CLAIM",
+    "text": "Verity supports over 1,200 organizations worldwide with guaranteed 99.9% service availability.",
+    "expected_verdict": "CLEAN",
+    "expected_rule_or_fact": null,
+    "notes": "Approved scale metric matching FACT-14."
+  },
+  {
+    "id": "TEST-08",
+    "type": "UNVERIFIABLE_CLAIM",
+    "text": "Our solution is 100% foolproof and reduces churn by 95% in 3 days.",
+    "expected_verdict": "UNVERIFIABLE",
+    "expected_rule_or_fact": "CLAIM-04",
+    "notes": "Unsubstantiated 100% foolproof and statistical claim not present in approved facts."
+  }
+]

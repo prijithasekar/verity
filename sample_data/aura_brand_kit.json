@@ -1,0 +1,74 @@
+{
+  "brand_name": "Verity Technologies",
+  "version": "2026.2",
+  "rules": [
+    {
+      "id": "TERM-12",
+      "category": "terminology",
+      "rule_name": "Customer-Centric Terminology",
+      "description": "Use 'customer' or 'user' instead of 'client'.",
+      "preferred_pattern": "customer",
+      "banned_pattern": "\\bclient\\b|\\bclients\\b",
+      "source_reference": "Verity Brand Guidelines 2026, Section 2.1",
+      "exact_source_text": "We serve customers, not clients. Always address our platform users as customers or community members.",
+      "severity": "LOW"
+    },
+    {
+      "id": "TONE-03",
+      "category": "tone",
+      "rule_name": "Empathetic Urgency vs FOMO",
+      "description": "Avoid aggressive urgency, clickbait and artificial pressure such as 'hurry up' or 'or regret it'.",
+      "preferred_pattern": "available for a limited period",
+      "banned_pattern": "\\bhurry up\\b|\\bdon't miss out\\b|\\bor regret it\\b|\\bact fast or lose\\b",
+      "source_reference": "Editorial Voice & Tone Guide 2026, Section 3.2",
+      "exact_source_text": "Urgency should be respectful and informative. Never pressure users through manufactured panic, aggressive FOMO, or sensationalist threats.",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "CLAIM-04",
+      "category": "claim",
+      "rule_name": "Unsubstantiated Market Leadership Claims",
+      "description": "Claims of being '#1', 'the best in the world', or 'guaranteed returns' require official certified legal approval.",
+      "preferred_pattern": "Leading brand governance solution",
+      "banned_pattern": "\\b#1 in India\\b|\\b#1 app\\b|\\bguaranteed!\\b|\\b100% foolproof\\b",
+      "source_reference": "Legal & Advertising Standards 2026, Clause 4.8",
+      "exact_source_text": "No content may claim '#1 in India' or 'guaranteed' returns without certified audited proof attached.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "ACC-01",
+      "category": "accessibility",
+      "rule_name": "Alternative Text Requirement",
+      "description": "All embedded visual banners and figures must provide descriptive alt-text.",
+      "preferred_pattern": "Descriptive alt-text summarizing visual content",
+      "banned_pattern": "no alt text",
+      "source_reference": "Web Accessibility Policy (WCAG 2.1 AA), Section 1.1",
+      "exact_source_text": "All non-text visual content published across web and email channels must include concise, accurate text alternatives.",
+      "severity": "HIGH"
+    }
+  ],
+  "facts": [
+    {
+      "id": "FACT-21",
+      "category": "pricing",
+      "subject": "Summer Promotion 2026",
+      "fact_statement": "Summer 2026 promotional campaign offers 30% off annual licenses until 15 August 2026.",
+      "exact_quote": "Get 30% off on all annual plans until 15 August 2026.",
+      "valid_from": "2026-06-01",
+      "valid_until": "2026-08-15",
+      "approved_by": "VP of Marketing & CFO",
+      "source_document": "Pricing Matrix Q2-Q3 2026"
+    },
+    {
+      "id": "FACT-14",
+      "category": "metrics",
+      "subject": "Customer Base & Scale",
+      "fact_statement": "Verity is deployed across 1,200+ marketing teams globally with 99.9% verified uptime.",
+      "exact_quote": "Verity supports over 1,200 organizations worldwide with guaranteed 99.9% service availability.",
+      "valid_from": "2026-01-01",
+      "valid_until": "2026-12-31",
+      "approved_by": "Product Operations",
+      "source_document": "Annual Operational Metrics Review 2026"
+    }
+  ]
+}

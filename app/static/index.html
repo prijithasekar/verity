@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verity — Pre-Publication Brand Governance</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0F172A',
+              blue: '#1E3A8A',
+              accent: '#2563EB',
+              tint: '#EFF6FF',
+              light: '#F8FAFC'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .highlight-high {
+      background-color: #FEE2E2;
+      border-bottom: 2px solid #EF4444;
+      cursor: pointer;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+    .highlight-medium {
+      background-color: #FEF3C7;
+      border-bottom: 2px solid #F59E0B;
+      cursor: pointer;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+    .highlight-low {
+      background-color: #DBEAFE;
+      border-bottom: 2px solid #3B82F6;
+      cursor: pointer;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+    .highlight-acc {
+      background-color: #F3E8FF;
+      border-bottom: 2px solid #A855F7;
+      cursor: pointer;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+    .active-card {
+      box-shadow: 0 0 0 2px #2563EB;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xl tracking-wider text-white shadow-inner">
+          V
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl font-bold tracking-tight text-white">Verity</h1>
+            <span class="text-xs bg-blue-900/60 text-blue-300 font-medium px-2 py-0.5 rounded border border-blue-700">Governance Platform</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Pre-publication brand governance that cites its sources and keeps humans in charge</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <!-- Role Switcher -->
+        <div class="flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700">
+          <label class="text-xs text-slate-400 px-2 font-medium">Role:</label>
+          <select id="role-select" onchange="app.switchRole(this.value)" class="bg-slate-900 text-xs text-white rounded px-2 py-1 border border-slate-700 font-medium focus:outline-none focus:border-blue-500">
+            <option value="creator">✍️ Content Creator</option>
+            <option value="reviewer">🔍 Authorised Reviewer</option>
+            <option value="manager">👔 Content Manager</option>
+            <option value="admin">⚙️ Brand Admin</option>
+          </select>
+        </div>
+
+        <!-- Privacy Shield Badge -->
+        <div class="hidden md:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2.5 py-1 rounded-full">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          <span>Zero-Retention PII Scrubbed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="bg-slate-800 border-t border-slate-700/60 px-4 sm:px-8">
+      <nav class="max-w-7xl mx-auto flex space-x-8 text-sm font-medium">
+        <button onclick="app.switchTab('workspace')" id="tab-workspace" class="py-2.5 border-b-2 border-blue-500 text-white flex items-center space-x-2">
+          <span>📝 Review Workspace</span>
+        </button>
+        <button onclick="app.switchTab('clarity')" id="tab-clarity" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center space-x-2">
+          <span>📊 Guideline Clarity & Insights</span>
+          <span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.2 rounded border border-amber-600/40">Improvement 3</span>
+        </button>
+        <button onclick="app.switchTab('kb')" id="tab-kb" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center space-x-2">
+          <span>📚 Brand Knowledge Base</span>
+        </button>
+        <button onclick="app.switchTab('multiformat')" id="tab-multiformat" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center space-x-2">
+          <span>🎨 Contrast & Asset Check</span>
+        </button>
+        <button onclick="app.switchTab('audit')" id="tab-audit" class="py-2.5 border-b-2 border-transparent text-slate-400 hover:text-white flex items-center space-x-2">
+          <span>📜 Audit Log</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- VIEW 1: REVIEW WORKSPACE (Matches Slide 4 Wireframe) -->
+    <div id="view-workspace" class="space-y-6">
+      
+      <!-- Top Action Bar -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div>
+            <div class="flex items-center space-x-2">
+              <input id="draft-title" type="text" value="Summer Sale Social Post" class="text-lg font-bold text-slate-900 border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none px-1">
+              <span id="draft-version-badge" class="bg-slate-100 text-slate-700 font-semibold text-xs px-2 py-0.5 rounded border border-slate-300">v1</span>
+            </div>
+            <p class="text-xs text-slate-500">Channel: <span class="font-medium text-slate-700">LinkedIn & Twitter</span> • Author: <span class="font-medium text-slate-700" id="current-actor-name">Content Creator</span></p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <!-- Status Tag -->
+          <div id="status-pill" class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span id="status-text">Status: Needs changes</span>
+          </div>
+
+          <!-- Assigned Role Routing -->
+          <div class="text-xs bg-slate-100 px-3 py-1 rounded-full border border-slate-200 text-slate-600">
+            Next Approver: <strong id="assigned-role-text" class="text-blue-700 font-semibold">Authorised Reviewer</strong>
+          </div>
+
+          <!-- Quick Samples -->
+          <button onclick="app.loadSampleDraft()" class="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200">
+            Load Hackathon Test Draft
+          </button>
+
+          <!-- Run Button -->
+          <button onclick="app.runReview()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Re-run & Audit</span>
+          </button>
+
+          <!-- Submit / Approve Button -->
+          <div id="workflow-action-container">
+            <!-- Dynamically populated based on active role -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvement 1 & 2 Alert Banners -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start space-x-3">
+          <div class="p-1 bg-blue-600 text-white rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wide">Improvement 1: Code-Level Citation Verifier</h4>
+            <p class="text-xs text-blue-800 mt-0.5">Every finding is strictly verified against source truth in code. Fabricated excerpts are discarded. Currently: <strong class="text-blue-950 font-bold" id="citation-stat">3/3 citations verified</strong>.</p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start space-x-3">
+          <div class="p-1 bg-amber-600 text-white rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wide">Improvement 2: Three-Way Claim Verdicts</h4>
+            <p class="text-xs text-amber-800 mt-0.5">Claims are labelled <em>Supported</em>, <em>Contradicted</em>, or <em>Unverifiable</em>. Unverifiable claims route to human review rather than guessing.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Review Workspace -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT COLUMN: Draft Editor & Visual Highlights (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Draft Document View</span>
+              <div class="flex items-center space-x-2 text-xs">
+                <span class="text-slate-500">Readability:</span>
+                <span id="readability-badge" class="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">Grade 6.2 (Easy)</span>
+              </div>
+            </div>
+
+            <!-- Visual Highlight Area -->
+            <div class="p-4 border-b border-slate-100">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Live Annotated Content (Click highlighted phrase to inspect finding)</label>
+              <div id="highlighted-display" class="p-4 bg-slate-50 rounded-lg min-h-[140px] text-slate-800 text-base leading-relaxed whitespace-pre-wrap font-serif border border-slate-200">
+                <!-- Highlighted tokens rendered here -->
+              </div>
+            </div>
+
+            <!-- Editable Draft Input -->
+            <div class="p-4">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Direct Content Editor</label>
+              <textarea id="draft-input" rows="6" oninput="app.onEditorInput()" class="w-full text-sm font-mono p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent leading-relaxed" placeholder="Type or paste draft copy here..."></textarea>
+            </div>
+
+            <!-- PII & Secret Redaction Notice -->
+            <div id="pii-notice" class="bg-emerald-50 px-4 py-2 border-t border-emerald-100 text-xs text-emerald-800 flex items-center justify-between">
+              <span class="flex items-center space-x-1.5">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Automated PII scrubbing active: zero confidential credentials passed to models.</span>
+              </span>
+              <span id="redacted-count-badge" class="font-semibold text-emerald-700">0 secrets redacted</span>
+            </div>
+          </div>
+
+          <!-- Comments & Discussion Thread -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2 mb-3">
+              <span>💬 Review Comments & Feedback</span>
+              <span id="comment-count" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">2</span>
+            </h3>
+
+            <div id="comments-list" class="space-y-3 max-h-56 overflow-y-auto mb-3 pr-1">
+              <!-- Comments will render here -->
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <input id="comment-input" type="text" placeholder="Add a review note or instruction for the team..." class="flex-1 text-xs border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
+              <button onclick="app.postComment()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium rounded-lg">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Findings Rail (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Findings & Citations</h2>
+              <span id="findings-count-badge" class="bg-rose-100 text-rose-700 font-bold text-xs px-2 py-0.5 rounded-full">3 Issues</span>
+            </div>
+            <span class="text-xs text-slate-500">Humans in charge</span>
+          </div>
+
+          <div id="findings-container" class="space-y-4">
+            <!-- Finding Cards dynamically injected -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW 2: GUIDELINE CLARITY & GOVERNANCE INSIGHTS (Improvement 3) -->
+    <div id="view-clarity" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-xl font-bold text-slate-900">Guideline-Clarity Insights Dashboard</h2>
+              <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded border border-amber-200">Hackathon Improvement 3</span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Surfaces rules and guidelines that creators frequently contest or dismiss, identifying ambiguous brand standards.</p>
+          </div>
+          <button onclick="app.loadClarityInsights()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg border border-slate-300">
+            Refresh Insights
+          </button>
+        </div>
+
+        <!-- Metric Stat Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Org Compliance Rate</span>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="stat-compliance">92.5%</div>
+            <span class="text-xs text-emerald-600 font-medium">↑ Healthy baseline</span>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase">Total Active Rules</span>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="stat-rules">7</div>
+            <span class="text-xs text-slate-500">Grounded in Knowledge Base</span>
+          </div>
+          <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+            <span class="text-xs font-semibold text-amber-800 uppercase">Ambiguous Guidelines</span>
+            <div class="text-2xl font-black text-amber-900 mt-1" id="stat-ambiguous">1</div>
+            <span class="text-xs text-amber-700 font-medium">Require admin clarification</span>
+          </div>
+          <div class="bg-rose-50 p-4 rounded-lg border border-rose-200">
+            <span class="text-xs font-semibold text-rose-800 uppercase">Top Disputed Rule</span>
+            <div class="text-2xl font-black text-rose-900 mt-1" id="stat-top-disputed">CLAIM-04</div>
+            <span class="text-xs text-rose-700 font-medium">61.1% Dismissal rate</span>
+          </div>
+        </div>
+
+        <!-- High Ambiguity Guidelines Table -->
+        <div class="mb-6">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Flagged Ambiguous Guidelines (Admin Action Required)</h3>
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="min-w-full divide-y divide-slate-200 text-xs text-left">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase">
+                <tr>
+                  <th class="px-4 py-3">Rule ID</th>
+                  <th class="px-4 py-3">Rule Name & Reference</th>
+                  <th class="px-4 py-3">Dismissal Rate</th>
+                  <th class="px-4 py-3">Times Contested</th>
+                  <th class="px-4 py-3">Creator Feedback & Conflict Cause</th>
+                  <th class="px-4 py-3">Admin Recommendation</th>
+                </tr>
+              </thead>
+              <tbody id="clarity-table-body" class="divide-y divide-slate-200 bg-white">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detected Gaps / Uncovered Topics -->
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Uncovered Topics & Brand Guideline Gaps</h3>
+          <p class="text-xs text-slate-600 mb-2">Based on creator feedback when dismissing findings, the following topics lack explicit guidelines in the brand kit:</p>
+          <ul id="uncovered-topics-list" class="space-y-1 text-xs text-slate-700 list-disc list-inside">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: BRAND KNOWLEDGE BASE -->
+    <div id="view-kb" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Brand Knowledge Base & Ground Truth</h2>
+            <p class="text-sm text-slate-500 mt-1">Authoritative repository of atomic rules, approved facts, terminology guidelines, and brand assets.</p>
+          </div>
+          <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
+            Ground-Truth Enforced
+          </span>
+        </div>
+
+        <!-- Rules & Facts Sub-Tabs -->
+        <div class="flex space-x-4 border-b border-slate-200 pb-2 mb-4">
+          <button onclick="app.showKbTab('rules')" id="kbtab-rules" class="text-xs font-bold text-blue-600 border-b-2 border-blue-600 pb-2">
+            Brand Rules (7)
+          </button>
+          <button onclick="app.showKbTab('facts')" id="kbtab-facts" class="text-xs font-bold text-slate-400 hover:text-slate-700 pb-2">
+            Approved Facts (4)
+          </button>
+        </div>
+
+        <!-- Rules List -->
+        <div id="kb-rules-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Facts List -->
+        <div id="kb-facts-list" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4: CONTRAST & MULTI-FORMAT INSPECTOR -->
+    <div id="view-multiformat" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">WCAG 2.1 Accessibility & Asset Inspector</h2>
+        <p class="text-sm text-slate-500 mb-6">Interactive color contrast calculator for brand visual identity and document parsing preview.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Contrast Checker Tool -->
+          <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Brand Palette Contrast Validator</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Foreground (Text)</label>
+                <div class="flex items-center space-x-2">
+                  <input type="color" id="fg-color" value="#1E3A8A" onchange="app.calculateContrast()" class="w-8 h-8 rounded border border-slate-300 cursor-pointer">
+                  <input type="text" id="fg-hex" value="#1E3A8A" oninput="app.calculateContrast()" class="text-xs font-mono p-1.5 border border-slate-300 rounded w-full">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Background</label>
+                <div class="flex items-center space-x-2">
+                  <input type="color" id="bg-color" value="#FFFFFF" onchange="app.calculateContrast()" class="w-8 h-8 rounded border border-slate-300 cursor-pointer">
+                  <input type="text" id="bg-hex" value="#FFFFFF" oninput="app.calculateContrast()" class="text-xs font-mono p-1.5 border border-slate-300 rounded w-full">
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview Box -->
+            <div id="contrast-preview-box" class="p-4 rounded-lg border flex items-center justify-center font-bold text-lg" style="background-color: #FFFFFF; color: #1E3A8A;">
+              Sample Brand Headline Text
+            </div>
+
+            <!-- Results -->
+            <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600 font-medium">Calculated Contrast Ratio:</span>
+                <span id="contrast-ratio-val" class="text-base font-bold text-slate-900">9.5 : 1</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600">WCAG AA Normal Text (Min 4.5:1):</span>
+                <span id="wcag-aa-badge" class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">PASS</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600">WCAG AAA Enhanced (Min 7.0:1):</span>
+                <span id="wcag-aaa-badge" class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">PASS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Upload & Parser Preview -->
+          <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Document & File Ingestion (DOCX, PDF, TXT)</h3>
+            <p class="text-xs text-slate-600">Verity extracts raw copy, filters confidential PII, and runs brand checks automatically.</p>
+            
+            <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('file-upload').click()">
+              <svg class="mx-auto h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+              <p class="mt-2 text-xs font-semibold text-slate-700">Click to upload DOCX or PDF file</p>
+              <p class="text-xs text-slate-500">python-docx & pdfplumber extraction</p>
+              <input type="file" id="file-upload" onchange="app.handleFileUpload(event)" class="hidden" accept=".docx,.pdf,.txt">
+            </div>
+
+            <div id="file-parse-status" class="hidden text-xs bg-blue-50 border border-blue-200 p-3 rounded text-blue-900">
+              <!-- Upload result info -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: AUDIT LOG -->
+    <div id="view-audit" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Immutable Governance Audit Log</h2>
+        <p class="text-sm text-slate-500 mb-4">Complete audit trail of every suggestion accepted, finding dismissed, review routed, and status transition.</p>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div id="audit-logs-container" class="divide-y divide-slate-200 text-xs">
+            <!-- Dynamic logs -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: Dismiss Finding with Required Reason (Improvement 3 Data Feeder) -->
+  <div id="dismiss-modal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Dismiss Finding</h3>
+        <button onclick="app.closeDismissModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600">
+        In accordance with Verity governance, dismissing a finding requires a documented reason. Your feedback feeds the <strong>Guideline Clarity Insights</strong> to identify ambiguous rules.
+      </p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Reason for Dismissal / Dispute <span class="text-red-500">*</span></label>
+        <textarea id="dismissal-reason-input" rows="3" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="e.g. In this specific customer campaign, the phrase is appropriate because..."></textarea>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button onclick="app.closeDismissModal()" class="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800">Cancel</button>
+        <button onclick="app.submitDismissal()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs rounded-lg shadow-sm">Confirm Dismissal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Edit Replacement -->
+  <div id="edit-modal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Custom Replacement</h3>
+        <button onclick="app.closeEditModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600">Provide an intent-preserving custom rewrite for this flagged phrase:</p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Replacement Text</label>
+        <input type="text" id="edit-replacement-input" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button onclick="app.closeEditModal()" class="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800">Cancel</button>
+        <button onclick="app.submitEdit()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-lg shadow-sm">Apply Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic JS -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
