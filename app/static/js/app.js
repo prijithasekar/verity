@@ -1,4 +1,5 @@
-// Verity Frontend Engine
+// Verity Frontend Engine — Round 3 Premium Upgrade
+// All existing logic preserved. Added: toast notifications, loading states, dark-theme card rendering.
 
 const app = {
   activeTab: 'workspace',
@@ -15,6 +16,30 @@ const app = {
   // Initial Sample matching Slide 4 Wireframe
   sampleDraft: "Our client-friendly app is the #1 app in India, guaranteed!\nGet 50% off until 31 August. Download now.\n[image: banner.png]",
 
+  // ─── TOAST NOTIFICATION SYSTEM ───────────────────────────────────────
+  showToast: function(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const icons = {
+      success: '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+      error:   '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>',
+      warn:    '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+      info:    '<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} pointer-events-auto`;
+    toast.innerHTML = `${icons[type] || icons.info}<span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.3s ease forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  },
+
+  // ─── INIT ─────────────────────────────────────────────────────────────
   init: function() {
     this.draftContent = this.sampleDraft;
     document.getElementById('draft-input').value = this.draftContent;
@@ -23,92 +48,86 @@ const app = {
     this.calculateContrast();
   },
 
+  // ─── TAB SWITCHING ────────────────────────────────────────────────────
   switchTab: function(tabName) {
     this.activeTab = tabName;
     ['workspace', 'clarity', 'kb', 'multiformat', 'audit'].forEach(t => {
-      const el = document.getElementById(`view-${t}`);
+      const el  = document.getElementById(`view-${t}`);
       const btn = document.getElementById(`tab-${t}`);
       if (t === tabName) {
         el.classList.remove('hidden');
-        btn.classList.add('border-blue-500', 'text-white');
-        btn.classList.remove('border-transparent', 'text-slate-400');
+        btn.classList.add('active');
       } else {
         el.classList.add('hidden');
-        btn.classList.remove('border-blue-500', 'text-white');
-        btn.classList.add('border-transparent', 'text-slate-400');
+        btn.classList.remove('active');
       }
     });
 
-    if (tabName === 'clarity') {
-      this.loadClarityInsights();
-    } else if (tabName === 'kb') {
-      this.loadKnowledgeBase();
-    }
+    if (tabName === 'clarity')  this.loadClarityInsights();
+    else if (tabName === 'kb')  this.loadKnowledgeBase();
   },
 
+  // ─── ROLE SWITCHING ───────────────────────────────────────────────────
   switchRole: function(newRole) {
     this.activeRole = newRole;
     const names = {
-      creator: "Content Creator",
+      creator:  "Content Creator",
       reviewer: "Authorised Reviewer",
-      manager: "Content Manager",
-      admin: "Brand Admin"
+      manager:  "Content Manager",
+      admin:    "Brand Admin"
     };
     document.getElementById('current-actor-name').innerText = names[newRole] || newRole;
     this.renderWorkflowActions();
+    this.showToast(`Role switched to ${names[newRole]}`, 'info');
   },
 
+  // ─── WORKFLOW ACTIONS ─────────────────────────────────────────────────
   renderWorkflowActions: function() {
     const container = document.getElementById('workflow-action-container');
     container.innerHTML = '';
 
     if (this.activeRole === 'creator') {
       container.innerHTML = `
-        <button onclick="app.submitForApproval()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center space-x-1.5 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-          <span>Submit for Approval</span>
+        <button onclick="app.submitForApproval()" class="btn-success text-xs font-heading px-4 py-2 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          Submit for Approval
         </button>
       `;
     } else if (this.activeRole === 'reviewer') {
       container.innerHTML = `
-        <div class="flex space-x-2">
-          <button onclick="app.requestChanges()" class="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs rounded-lg shadow-sm">
-            Request Changes
-          </button>
-          <button onclick="app.forwardToManager()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs rounded-lg shadow-sm">
-            Forward to Manager
-          </button>
+        <div class="flex gap-2">
+          <button onclick="app.requestChanges()" class="btn-amber text-xs font-heading px-3 py-2">Request Changes</button>
+          <button onclick="app.forwardToManager()" class="btn-primary text-xs font-heading px-3 py-2">Forward to Manager</button>
         </div>
       `;
     } else if (this.activeRole === 'manager') {
       container.innerHTML = `
-        <div class="flex space-x-2">
-          <button onclick="app.requestChanges()" class="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs rounded-lg shadow-sm">
-            Request Changes
-          </button>
-          <button onclick="app.approveDraft()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm flex items-center space-x-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            <span>Approve Publication</span>
+        <div class="flex gap-2">
+          <button onclick="app.requestChanges()" class="btn-amber text-xs font-heading px-3 py-2">Request Changes</button>
+          <button onclick="app.approveDraft()" class="btn-success text-xs font-heading px-4 py-2 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Approve Publication
           </button>
         </div>
       `;
     } else if (this.activeRole === 'admin') {
       container.innerHTML = `
-        <button onclick="app.switchTab('clarity')" class="px-3 py-2 bg-purple-700 hover:bg-purple-800 text-white font-medium text-xs rounded-lg shadow-sm">
-          Inspect Guideline Ambiguity
-        </button>
+        <button onclick="app.switchTab('clarity')" class="btn-primary text-xs font-heading px-3 py-2">Inspect Guideline Ambiguity</button>
       `;
     }
   },
 
+  // ─── LOAD SAMPLE DRAFT ────────────────────────────────────────────────
   loadSampleDraft: function() {
     this.draftContent = this.sampleDraft;
     document.getElementById('draft-input').value = this.draftContent;
     this.currentVersion = 1;
     document.getElementById('draft-version-badge').innerText = 'v1';
     this.initDraft();
+    this.showToast('Hackathon test draft loaded!', 'info');
   },
 
+  // ─── INIT DRAFT ───────────────────────────────────────────────────────
   initDraft: async function() {
     try {
       const res = await fetch('/api/v1/drafts', {
@@ -130,17 +149,33 @@ const app = {
     }
   },
 
+  // ─── EDITOR INPUT ─────────────────────────────────────────────────────
   onEditorInput: function() {
     this.draftContent = document.getElementById('draft-input').value;
     this.renderHighlightedText();
   },
 
+  // ─── RUN REVIEW ───────────────────────────────────────────────────────
   runReview: async function() {
     if (!this.currentDraftId) {
       await this.initDraft();
       return;
     }
+
+    // Loading state
+    const btn   = document.getElementById('run-btn');
+    const icon  = document.getElementById('run-icon');
+    const label = document.getElementById('run-label');
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    icon.classList.add('spin');
+    label.textContent = 'Scanning…';
+
+    // Show skeleton loading
+    this.showSkeletonFindings();
+
     this.draftContent = document.getElementById('draft-input').value;
+
     try {
       const res = await fetch('/api/v1/review/analyze', {
         method: 'POST',
@@ -154,7 +189,7 @@ const app = {
 
       // Update readability
       document.getElementById('readability-badge').innerText = `Grade ${data.readability.grade_level} (${data.readability.assessment})`;
-      
+
       // Update citation verification stats (Improvement 1)
       const vCount = data.verified_findings.length;
       document.getElementById('citation-stat').innerText = `${vCount}/${vCount} citations code-verified`;
@@ -167,11 +202,36 @@ const app = {
 
       // Refresh full details from DB
       await this.refreshDraftDetails();
+      this.showToast(`Audit complete — ${vCount} verified finding${vCount !== 1 ? 's' : ''} found.`, vCount > 0 ? 'warn' : 'success');
     } catch (e) {
       console.error("Review run failed:", e);
+      this.showToast('Review failed — check backend connection.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      icon.classList.remove('spin');
+      label.textContent = 'Re-run & Audit';
     }
   },
 
+  // ─── SKELETON LOADING ─────────────────────────────────────────────────
+  showSkeletonFindings: function() {
+    const container = document.getElementById('findings-container');
+    container.innerHTML = [1,2,3].map(() => `
+      <div class="card-surface2 rounded-xl p-4 space-y-3">
+        <div class="shimmer h-4 w-2/3 rounded"></div>
+        <div class="shimmer h-3 w-full rounded"></div>
+        <div class="shimmer h-3 w-5/6 rounded"></div>
+        <div class="shimmer h-16 rounded-lg"></div>
+        <div class="flex justify-end gap-2">
+          <div class="shimmer h-7 w-16 rounded-lg"></div>
+          <div class="shimmer h-7 w-16 rounded-lg"></div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  // ─── REFRESH DRAFT DETAILS ────────────────────────────────────────────
   refreshDraftDetails: async function() {
     if (!this.currentDraftId) return;
     try {
@@ -181,12 +241,13 @@ const app = {
       this.currentVersion = data.current_version;
       document.getElementById('draft-version-badge').innerText = `v${this.currentVersion}`;
 
-      // Update status pill
       this.updateStatusPill(data.status);
-      document.getElementById('assigned-role-text').innerText = data.assigned_role === 'reviewer' ? 'Authorised Reviewer' : (data.assigned_role === 'manager' ? 'Content Manager' : data.assigned_role);
+      document.getElementById('assigned-role-text').innerText =
+        data.assigned_role === 'reviewer' ? 'Authorised Reviewer' :
+        (data.assigned_role === 'manager' ? 'Content Manager' : data.assigned_role);
 
-      this.findings = data.findings;
-      this.comments = data.comments;
+      this.findings  = data.findings;
+      this.comments  = data.comments;
       this.auditLogs = data.audit_logs;
 
       this.renderFindings();
@@ -198,36 +259,36 @@ const app = {
     }
   },
 
+  // ─── STATUS PILL ──────────────────────────────────────────────────────
   updateStatusPill: function(status) {
     const pill = document.getElementById('status-pill');
     const text = document.getElementById('status-text');
 
     if (status === 'APPROVED') {
-      pill.className = "flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
+      pill.style.cssText = "background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#6EE7B7;display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;font-family:'Space Grotesk',sans-serif;";
       text.innerText = "Status: Approved for Publication";
     } else if (status === 'PENDING_APPROVAL') {
-      pill.className = "flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300";
+      pill.style.cssText = "background:rgba(103,232,249,0.1);border:1px solid rgba(103,232,249,0.3);color:#67E8F9;display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;font-family:'Space Grotesk',sans-serif;";
       text.innerText = "Status: Pending Approval";
     } else {
-      pill.className = "flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300";
-      text.innerText = "Status: Needs changes";
+      pill.style.cssText = "background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#FCD34D;display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;font-family:'Space Grotesk',sans-serif;";
+      text.innerText = "Status: Needs Changes";
     }
   },
 
+  // ─── HIGHLIGHTED TEXT ─────────────────────────────────────────────────
   renderHighlightedText: function() {
     const display = document.getElementById('highlighted-display');
     let text = this.draftContent;
 
-    // Filter open findings
     const openFindings = this.findings.filter(f => f.status === 'OPEN');
-    
+
     if (openFindings.length === 0) {
-      display.innerHTML = text.replace(/\n/g, '<br>') || '<span class="text-slate-400 italic">No content.</span>';
+      display.innerHTML = text.replace(/\n/g, '<br>') || '<span style="color:var(--text-secondary);font-style:italic;">No content.</span>';
       return;
     }
 
     let markedHtml = text;
-    // Replace phrases safely with spans
     openFindings.forEach(f => {
       const phrase = f.flagged_text;
       if (!phrase || !markedHtml.includes(phrase)) return;
@@ -248,110 +309,124 @@ const app = {
     display.innerHTML = markedHtml.replace(/\n/g, '<br>');
   },
 
+  // ─── RENDER FINDINGS ──────────────────────────────────────────────────
   renderFindings: function() {
     const container = document.getElementById('findings-container');
-    const badge = document.getElementById('findings-count-badge');
+    const badge     = document.getElementById('findings-count-badge');
     const openFindings = this.findings.filter(f => f.status === 'OPEN');
-    badge.innerText = `${openFindings.length} Issues`;
+    badge.innerText = `${openFindings.length} Issue${openFindings.length !== 1 ? 's' : ''}`;
 
     if (openFindings.length === 0) {
       container.innerHTML = `
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
-          <div class="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">✓</div>
-          <h4 class="text-sm font-bold text-emerald-900">All Brand Guidelines Satisfied</h4>
-          <p class="text-xs text-emerald-700 mt-1">This draft complies with all approved guidelines, tone standards, and verified facts.</p>
+        <div class="card-surface2 rounded-xl p-8 text-center">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-xl"
+               style="background:rgba(16,185,129,0.15);color:#10B981;">✓</div>
+          <h4 class="font-heading text-sm font-bold" style="color:#6EE7B7;">All Brand Guidelines Satisfied</h4>
+          <p class="text-xs mt-1" style="color:var(--text-secondary);">This draft complies with all approved guidelines, tone standards, and verified facts.</p>
         </div>
       `;
       return;
     }
 
     container.innerHTML = openFindings.map(f => {
-      // Verdict Badge (Improvement 2)
+      // Verdict Badge
       let verdictBadge = '';
       if (f.claim_verdict === 'UNVERIFIABLE') {
-        verdictBadge = `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded border border-rose-300">UNVERIFIABLE ➔ Routed to Reviewer</span>`;
+        verdictBadge = `<span class="badge badge-red font-heading">UNVERIFIABLE → Routed to Reviewer</span>`;
       } else if (f.claim_verdict === 'CONTRADICTED') {
-        verdictBadge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300">CONTRADICTED</span>`;
+        verdictBadge = `<span class="badge badge-amber font-heading">CONTRADICTED</span>`;
       } else if (f.category === 'terminology') {
-        verdictBadge = `<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded border border-blue-300">TERMINOLOGY</span>`;
+        verdictBadge = `<span class="badge badge-cyan font-heading">TERMINOLOGY</span>`;
       } else if (f.category === 'accessibility') {
-        verdictBadge = `<span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded border border-purple-300">ACCESSIBILITY</span>`;
+        verdictBadge = `<span class="badge badge-violet font-heading">ACCESSIBILITY</span>`;
       }
 
-      // Severity Color
-      const sevClass = f.severity === 'HIGH' ? 'bg-rose-600 text-white' : (f.severity === 'MEDIUM' ? 'bg-amber-500 text-white' : 'bg-blue-600 text-white');
+      // Severity glow border colour
+      const sevBg   = f.severity === 'HIGH'   ? 'rgba(244,63,94,0.12)'  :
+                      f.severity === 'MEDIUM' ? 'rgba(245,158,11,0.1)'  : 'rgba(103,232,249,0.08)';
+      const sevBdr  = f.severity === 'HIGH'   ? 'rgba(244,63,94,0.35)'  :
+                      f.severity === 'MEDIUM' ? 'rgba(245,158,11,0.3)'  : 'rgba(103,232,249,0.25)';
+      const sevAccent = f.severity === 'HIGH'   ? '#F43F5E'  :
+                        f.severity === 'MEDIUM' ? '#F59E0B'  : '#67E8F9';
+      const sevLabel  = f.severity === 'HIGH'   ? 'HIGH'  :
+                        f.severity === 'MEDIUM' ? 'MED'   : 'LOW';
 
       return `
-        <div id="card-${f.id}" class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3 transition hover:shadow-md">
+        <div id="card-${f.id}"
+             class="rounded-xl p-4 space-y-3 transition-all"
+             style="background:${sevBg};border:1px solid ${sevBdr};border-left:3px solid ${sevAccent};">
+
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="${sevClass} font-bold text-[10px] uppercase px-1.5 py-0.5 rounded">${f.severity}</span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="badge font-heading"
+                    style="background:${sevBg};border-color:${sevBdr};color:${sevAccent};">${sevLabel}</span>
               ${verdictBadge}
             </div>
-            <span class="text-xs font-mono font-bold text-slate-500">${f.rule_or_fact_id}</span>
+            <span class="mono text-[10px] font-bold" style="color:var(--text-secondary);">${f.rule_or_fact_id}</span>
           </div>
 
           <div>
-            <h4 class="text-xs font-bold text-slate-900">Flagged: <span class="bg-slate-100 px-1 py-0.5 rounded font-mono text-rose-600 font-semibold">"${f.flagged_text}"</span></h4>
-            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${f.explanation}</p>
+            <h4 class="font-heading text-xs font-bold" style="color:var(--text-primary);">
+              Flagged: <span class="mono rounded px-1.5 py-0.5" style="color:${sevAccent};background:rgba(255,255,255,0.05);">"${f.flagged_text}"</span>
+            </h4>
+            <p class="text-xs mt-1 leading-relaxed" style="color:var(--text-secondary);">${f.explanation}</p>
           </div>
 
-          <!-- Citation Grounding Proof (Improvement 1) -->
-          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] space-y-1">
-            <div class="flex items-center justify-between text-slate-500 font-semibold">
-              <span>Cited Ground Truth:</span>
-              <span class="text-emerald-700 flex items-center space-x-1 font-bold">
-                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                <span>Code-Verified</span>
+          <!-- Citation Ground Truth -->
+          <div class="rounded-lg p-2.5 text-[11px] space-y-1" style="background:rgba(8,11,24,0.6);border:1px solid var(--border-subtle);">
+            <div class="flex items-center justify-between font-semibold" style="color:var(--text-secondary);">
+              <span class="font-heading">Cited Ground Truth:</span>
+              <span class="flex items-center gap-1" style="color:#10B981;font-weight:700;">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Code-Verified
               </span>
             </div>
-            <p class="text-slate-700 italic border-l-2 border-blue-500 pl-2">"${f.cited_excerpt}"</p>
-            <div class="text-[10px] text-slate-400">Source: ${f.cited_source}</div>
+            <p class="italic leading-relaxed" style="color:var(--text-primary);border-left:2px solid var(--violet-primary);padding-left:8px;">"${f.cited_excerpt}"</p>
+            <div class="text-[10px]" style="color:var(--ink-muted,#6B7094);">Source: ${f.cited_source}</div>
           </div>
 
-          <!-- Suggestion & Visual Diff -->
+          <!-- Suggestion -->
           ${f.suggested_fix ? `
-            <div class="bg-blue-50/70 p-2.5 rounded-lg border border-blue-200 text-xs">
-              <span class="font-bold text-blue-900 block mb-1">Intent-Preserving Suggestion:</span>
-              <div class="text-slate-800 font-medium">Use: <strong class="text-emerald-700 bg-emerald-50 px-1 rounded">${f.suggested_fix}</strong></div>
+            <div class="rounded-lg p-2.5 text-xs" style="background:rgba(103,232,249,0.06);border:1px solid rgba(103,232,249,0.2);">
+              <span class="font-heading font-bold block mb-1" style="color:var(--cyan-accent);">Intent-Preserving Suggestion:</span>
+              <div style="color:var(--text-primary);">Use: <strong class="mono rounded px-1" style="color:#10B981;background:rgba(16,185,129,0.1);">${f.suggested_fix}</strong></div>
             </div>
           ` : ''}
 
-          <!-- Action Buttons -->
-          <div class="flex items-center justify-end space-x-2 pt-1 border-t border-slate-100">
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-2 pt-1" style="border-top:1px solid var(--border-subtle);">
             ${f.suggested_fix ? `
-              <button onclick="app.acceptFinding('${f.id}')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-md shadow-sm transition">
-                Accept
-              </button>
+              <button onclick="app.acceptFinding('${f.id}')"
+                      class="btn-success text-[11px] font-heading px-3 py-1">Accept</button>
             ` : ''}
-            <button onclick="app.openEditModal('${f.id}', '${f.suggested_fix || f.flagged_text}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-md border border-slate-300">
-              Edit
-            </button>
-            <button onclick="app.openDismissModal('${f.id}')" class="px-2.5 py-1 text-rose-600 hover:bg-rose-50 font-medium text-xs rounded-md">
-              Dismiss
-            </button>
+            <button onclick="app.openEditModal('${f.id}', '${(f.suggested_fix || f.flagged_text).replace(/'/g,"\\'")}' )"
+                    class="btn-secondary text-[11px] font-heading px-2.5 py-1">Edit</button>
+            <button onclick="app.openDismissModal('${f.id}')"
+                    class="btn-danger text-[11px] font-heading px-2.5 py-1">Dismiss</button>
           </div>
         </div>
       `;
     }).join('');
   },
 
+  // ─── SELECT FINDING ───────────────────────────────────────────────────
   selectFinding: function(id) {
     this.selectedFindingId = id;
+    document.querySelectorAll('#findings-container > div').forEach(c => c.classList.remove('active-card'));
     const card = document.getElementById(`card-${id}`);
     if (card) {
-      document.querySelectorAll('#findings-container > div').forEach(c => c.classList.remove('active-card'));
       card.classList.add('active-card');
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   },
 
+  // ─── ACCEPT FINDING ───────────────────────────────────────────────────
   acceptFinding: async function(findingId) {
     const finding = this.findings.find(f => f.id === findingId);
     if (!finding) return;
 
     try {
-      const res = await fetch(`/api/v1/drafts/${this.currentDraftId}/action-finding/${findingId}`, {
+      await fetch(`/api/v1/drafts/${this.currentDraftId}/action-finding/${findingId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -360,20 +435,21 @@ const app = {
           actor_name: document.getElementById('current-actor-name').innerText
         })
       });
-      const data = await res.json();
-      
-      // Update local draft content with replacement
+
       if (finding.suggested_fix) {
         this.draftContent = this.draftContent.replace(finding.flagged_text, finding.suggested_fix);
         document.getElementById('draft-input').value = this.draftContent;
       }
-      
+
       await this.refreshDraftDetails();
+      this.showToast('Suggestion accepted and applied!', 'success');
     } catch (e) {
       console.error("Accept failed:", e);
+      this.showToast('Accept failed — try again.', 'error');
     }
   },
 
+  // ─── DISMISS MODAL ────────────────────────────────────────────────────
   openDismissModal: function(findingId) {
     this.activeFindingForAction = findingId;
     document.getElementById('dismissal-reason-input').value = '';
@@ -388,7 +464,7 @@ const app = {
   submitDismissal: async function() {
     const reason = document.getElementById('dismissal-reason-input').value;
     if (!reason || !reason.trim()) {
-      alert("Please provide a reason. Dismissal feedback is required to feed Guideline Clarity insights.");
+      this.showToast('Please provide a reason — dismissal feedback is required to feed Guideline Clarity insights.', 'warn');
       return;
     }
 
@@ -405,11 +481,14 @@ const app = {
       });
       this.closeDismissModal();
       await this.refreshDraftDetails();
+      this.showToast('Finding dismissed — reason logged to Guideline Insights.', 'info');
     } catch (e) {
       console.error("Dismissal failed:", e);
+      this.showToast('Dismissal failed — try again.', 'error');
     }
   },
 
+  // ─── EDIT MODAL ───────────────────────────────────────────────────────
   openEditModal: function(findingId, defaultVal) {
     this.activeFindingForAction = findingId;
     document.getElementById('edit-replacement-input').value = defaultVal;
@@ -443,11 +522,14 @@ const app = {
 
       this.closeEditModal();
       await this.refreshDraftDetails();
+      this.showToast('Custom replacement applied!', 'success');
     } catch (e) {
       console.error("Edit failed:", e);
+      this.showToast('Edit failed — try again.', 'error');
     }
   },
 
+  // ─── WORKFLOW TRANSITIONS ─────────────────────────────────────────────
   submitForApproval: async function() {
     try {
       await fetch(`/api/v1/drafts/${this.currentDraftId}/transition`, {
@@ -461,8 +543,10 @@ const app = {
         })
       });
       await this.refreshDraftDetails();
+      this.showToast('Draft submitted for approval!', 'success');
     } catch (e) {
       console.error("Submit failed:", e);
+      this.showToast('Submission failed — try again.', 'error');
     }
   },
 
@@ -479,8 +563,10 @@ const app = {
         })
       });
       await this.refreshDraftDetails();
+      this.showToast('Draft approved for publication! 🎉', 'success');
     } catch (e) {
       console.error("Approval failed:", e);
+      this.showToast('Approval failed — try again.', 'error');
     }
   },
 
@@ -499,8 +585,10 @@ const app = {
         })
       });
       await this.refreshDraftDetails();
+      this.showToast('Changes requested — creator notified.', 'warn');
     } catch (e) {
       console.error("Request changes failed:", e);
+      this.showToast('Request failed — try again.', 'error');
     }
   },
 
@@ -517,34 +605,39 @@ const app = {
         })
       });
       await this.refreshDraftDetails();
+      this.showToast('Escalated to Content Manager!', 'info');
     } catch (e) {
       console.error("Forward failed:", e);
+      this.showToast('Escalation failed — try again.', 'error');
     }
   },
 
+  // ─── COMMENTS ─────────────────────────────────────────────────────────
   renderComments: function() {
     const container = document.getElementById('comments-list');
     document.getElementById('comment-count').innerText = this.comments.length;
 
     if (this.comments.length === 0) {
-      container.innerHTML = `<p class="text-xs text-slate-400 italic">No comments posted yet.</p>`;
+      container.innerHTML = `<p class="text-xs italic" style="color:var(--text-secondary);">No comments posted yet.</p>`;
       return;
     }
 
     container.innerHTML = this.comments.map(c => `
-      <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 text-xs">
+      <div class="rounded-lg p-2.5 text-xs" style="background:var(--bg-elevated);border:1px solid var(--border-subtle);">
         <div class="flex items-center justify-between text-[11px] mb-1">
-          <span class="font-bold text-slate-800">${c.author_name} <span class="text-slate-400 font-normal">(${c.author_role})</span></span>
-          <span class="text-slate-400 text-[10px]">${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          <span class="font-heading font-bold" style="color:var(--text-primary);">${c.author_name}
+            <span class="font-normal" style="color:var(--text-secondary);">(${c.author_role})</span>
+          </span>
+          <span style="color:var(--text-secondary);">${new Date(c.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
         </div>
-        <p class="text-slate-700 leading-snug">${c.message}</p>
+        <p class="leading-snug" style="color:var(--text-primary);">${c.message}</p>
       </div>
     `).join('');
   },
 
   postComment: async function() {
     const input = document.getElementById('comment-input');
-    const msg = input.value.trim();
+    const msg   = input.value.trim();
     if (!msg || !this.currentDraftId) return;
 
     try {
@@ -559,82 +652,94 @@ const app = {
       });
       input.value = '';
       await this.refreshDraftDetails();
+      this.showToast('Comment posted!', 'success');
     } catch (e) {
       console.error("Comment failed:", e);
+      this.showToast('Comment failed — try again.', 'error');
     }
   },
 
+  // ─── AUDIT LOGS ───────────────────────────────────────────────────────
   renderAuditLogs: function() {
     const container = document.getElementById('audit-logs-container');
     if (!container) return;
 
     if (this.auditLogs.length === 0) {
-      container.innerHTML = `<div class="p-4 text-center text-slate-400">No audit events recorded.</div>`;
+      container.innerHTML = `<div class="p-6 text-center text-xs italic" style="color:var(--text-secondary);">No audit events recorded.</div>`;
       return;
     }
 
     container.innerHTML = this.auditLogs.map(l => `
-      <div class="p-3 flex items-start justify-between hover:bg-slate-50">
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-slate-900">${l.action}</span>
-            <span class="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded">${l.actor_role}: ${l.actor}</span>
+      <div class="p-3 flex items-start justify-between text-xs hover:bg-white/2 transition-colors"
+           style="border-bottom:1px solid var(--border-subtle);">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-heading font-bold" style="color:var(--text-primary);">${l.action}</span>
+            <span class="badge badge-slate font-heading">${l.actor_role}: ${l.actor}</span>
           </div>
-          <p class="text-slate-600 mt-1 leading-snug">${l.details || ''}</p>
+          <p class="leading-snug" style="color:var(--text-secondary);">${l.details || ''}</p>
         </div>
-        <span class="text-slate-400 text-[10px] whitespace-nowrap ml-4">${new Date(l.timestamp).toLocaleTimeString()}</span>
+        <span class="mono text-[10px] whitespace-nowrap ml-4 mt-0.5" style="color:var(--text-secondary);">
+          ${new Date(l.timestamp).toLocaleTimeString()}
+        </span>
       </div>
     `).join('');
   },
 
-  // IMPROVEMENT 3: GUIDELINE CLARITY INSIGHTS
+  // ─── GUIDELINE CLARITY INSIGHTS (Improvement 3) ───────────────────────
   loadClarityInsights: async function() {
     try {
-      const res = await fetch('/api/v1/analytics/guideline-clarity');
+      const res  = await fetch('/api/v1/analytics/guideline-clarity');
       const data = await res.json();
 
       document.getElementById('stat-compliance').innerText = `${data.summary.org_compliance_rate}%`;
-      document.getElementById('stat-rules').innerText = data.summary.total_active_rules;
-      document.getElementById('stat-ambiguous').innerText = data.summary.high_ambiguity_rules_count;
+      document.getElementById('stat-rules').innerText      = data.summary.total_active_rules;
+      document.getElementById('stat-ambiguous').innerText  = data.summary.high_ambiguity_rules_count;
       document.getElementById('stat-top-disputed').innerText = data.summary.top_disputed_rule;
 
       // Table body
       const tbody = document.getElementById('clarity-table-body');
       tbody.innerHTML = data.all_rules_clarity.map(r => {
         const isAmb = r.status === 'HIGH_AMBIGUITY';
-        const badge = isAmb 
-          ? `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded border border-rose-300">HIGH AMBIGUITY (${r.dismissal_rate}%)</span>`
-          : `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">CLEAR (${r.clarity_score}% OK)</span>`;
+        const badge = isAmb
+          ? `<span class="badge badge-red font-heading">HIGH AMBIGUITY (${r.dismissal_rate}%)</span>`
+          : `<span class="badge badge-green font-heading">CLEAR (${r.clarity_score}% OK)</span>`;
 
         const feedbackList = (r.dispute_feedback && r.dispute_feedback.length > 0)
-          ? r.dispute_feedback.slice(-2).map(f => `<div class="italic text-slate-600">"${f}"</div>`).join('')
-          : '<span class="text-slate-400 italic">No creator disputes</span>';
+          ? r.dispute_feedback.slice(-2).map(f => `<div class="italic" style="color:var(--text-secondary);">"${f}"</div>`).join('')
+          : `<span class="italic" style="color:var(--text-secondary);">No creator disputes</span>`;
 
         return `
-          <tr class="${isAmb ? 'bg-rose-50/40' : ''}">
-            <td class="px-4 py-3 font-mono font-bold text-slate-900">${r.id}</td>
+          <tr style="background:${isAmb ? 'rgba(244,63,94,0.05)' : 'transparent'};border-bottom:1px solid var(--border-subtle);">
+            <td class="px-4 py-3 mono font-bold" style="color:var(--violet-light);">${r.id}</td>
             <td class="px-4 py-3">
-              <div class="font-bold text-slate-900">${r.rule_name}</div>
-              <div class="text-[10px] text-slate-500">${r.source_reference}</div>
+              <div class="font-heading font-bold" style="color:var(--text-primary);">${r.rule_name}</div>
+              <div class="text-[10px] mt-0.5" style="color:var(--text-secondary);">${r.source_reference}</div>
             </td>
             <td class="px-4 py-3">${badge}</td>
-            <td class="px-4 py-3 font-semibold text-slate-700">${r.times_dismissed} / ${r.times_flagged}</td>
-            <td class="px-4 py-3 space-y-1">${feedbackList}</td>
-            <td class="px-4 py-3 text-slate-700 font-medium">${r.recommendation}</td>
+            <td class="px-4 py-3 font-heading font-semibold" style="color:var(--text-primary);">${r.times_dismissed} / ${r.times_flagged}</td>
+            <td class="px-4 py-3 space-y-1 text-xs">${feedbackList}</td>
+            <td class="px-4 py-3 text-xs" style="color:var(--text-secondary);">${r.recommendation}</td>
           </tr>
         `;
       }).join('');
 
       // Uncovered topics
       const topicsList = document.getElementById('uncovered-topics-list');
-      topicsList.innerHTML = data.uncovered_topics_detected.map(t => `<li>${t}</li>`).join('');
+      topicsList.innerHTML = data.uncovered_topics_detected.map(t =>
+        `<li class="flex items-center gap-2">
+          <span style="color:var(--amber-status);">●</span>
+          <span>${t}</span>
+        </li>`
+      ).join('');
 
     } catch (e) {
       console.error("Failed to load clarity insights:", e);
+      this.showToast('Could not load Guideline Insights — check API.', 'error');
     }
   },
 
-  // BRAND KNOWLEDGE BASE TAB
+  // ─── KNOWLEDGE BASE ───────────────────────────────────────────────────
   loadKnowledgeBase: async function() {
     try {
       const [rulesRes, factsRes] = await Promise.all([
@@ -646,67 +751,68 @@ const app = {
 
       const rulesContainer = document.getElementById('kb-rules-list');
       rulesContainer.innerHTML = rules.map(r => `
-        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2 text-xs">
+        <div class="card-surface2 rounded-xl p-4 space-y-2 text-xs">
           <div class="flex items-center justify-between">
-            <span class="font-mono font-bold text-blue-700">${r.id}</span>
-            <span class="bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px] uppercase">${r.category}</span>
+            <span class="mono font-bold" style="color:var(--violet-light);">${r.id}</span>
+            <span class="badge badge-slate font-heading uppercase">${r.category}</span>
           </div>
-          <h4 class="font-bold text-slate-900">${r.rule_name}</h4>
-          <p class="text-slate-600">${r.description}</p>
-          <div class="bg-white p-2 rounded border border-slate-200">
-            <span class="text-[10px] text-slate-400 block font-semibold">Exact Source Excerpt (Ground Truth):</span>
-            <p class="text-slate-800 italic">"${r.exact_source_text}"</p>
+          <h4 class="font-heading font-bold" style="color:var(--text-primary);">${r.rule_name}</h4>
+          <p style="color:var(--text-secondary);">${r.description}</p>
+          <div class="rounded-lg p-2.5" style="background:rgba(8,11,24,0.6);border:1px solid var(--border-subtle);">
+            <span class="text-[10px] font-heading font-bold block mb-1" style="color:var(--text-secondary);">Exact Source Excerpt (Ground Truth):</span>
+            <p class="italic" style="color:var(--text-primary);">"${r.exact_source_text}"</p>
           </div>
-          <div class="text-[10px] text-slate-500">Ref: ${r.source_reference}</div>
+          <div class="text-[10px]" style="color:var(--text-secondary);">Ref: ${r.source_reference}</div>
         </div>
       `).join('');
 
       const factsContainer = document.getElementById('kb-facts-list');
       factsContainer.innerHTML = facts.map(f => `
-        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2 text-xs">
+        <div class="card-surface2 rounded-xl p-4 space-y-2 text-xs">
           <div class="flex items-center justify-between">
-            <span class="font-mono font-bold text-emerald-700">${f.id}</span>
-            <span class="bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px] uppercase">${f.category}</span>
+            <span class="mono font-bold" style="color:#10B981;">${f.id}</span>
+            <span class="badge badge-green font-heading uppercase">${f.category}</span>
           </div>
-          <h4 class="font-bold text-slate-900">${f.subject}</h4>
-          <p class="text-slate-700">${f.fact_statement}</p>
-          <div class="bg-white p-2 rounded border border-slate-200">
-            <span class="text-[10px] text-slate-400 block font-semibold">Authoritative Quote:</span>
-            <p class="text-slate-900 font-medium">"${f.exact_quote}"</p>
+          <h4 class="font-heading font-bold" style="color:var(--text-primary);">${f.subject}</h4>
+          <p style="color:var(--text-secondary);">${f.fact_statement}</p>
+          <div class="rounded-lg p-2.5" style="background:rgba(8,11,24,0.6);border:1px solid var(--border-subtle);">
+            <span class="text-[10px] font-heading font-bold block mb-1" style="color:var(--text-secondary);">Authoritative Quote:</span>
+            <p class="font-medium" style="color:var(--text-primary);">"${f.exact_quote}"</p>
           </div>
-          <div class="text-[10px] text-slate-500">Valid until: ${f.valid_until || 'Indefinite'} • Approved by: ${f.approved_by}</div>
+          <div class="text-[10px]" style="color:var(--text-secondary);">Valid until: ${f.valid_until || 'Indefinite'} • Approved by: ${f.approved_by}</div>
         </div>
       `).join('');
+
     } catch (e) {
       console.error("Failed to load KB:", e);
+      this.showToast('Knowledge Base load failed.', 'error');
     }
   },
 
   showKbTab: function(type) {
     const rulesList = document.getElementById('kb-rules-list');
     const factsList = document.getElementById('kb-facts-list');
-    const tabRules = document.getElementById('kbtab-rules');
-    const tabFacts = document.getElementById('kbtab-facts');
+    const tabRules  = document.getElementById('kbtab-rules');
+    const tabFacts  = document.getElementById('kbtab-facts');
 
     if (type === 'rules') {
       rulesList.classList.remove('hidden');
       factsList.classList.add('hidden');
-      tabRules.className = "text-xs font-bold text-blue-600 border-b-2 border-blue-600 pb-2";
-      tabFacts.className = "text-xs font-bold text-slate-400 hover:text-slate-700 pb-2";
+      tabRules.style.cssText = "color:var(--violet-light);border-bottom-color:var(--violet-primary);";
+      tabFacts.style.cssText = "color:var(--text-secondary);border-bottom-color:transparent;";
     } else {
       rulesList.classList.add('hidden');
       factsList.classList.remove('hidden');
-      tabFacts.className = "text-xs font-bold text-blue-600 border-b-2 border-blue-600 pb-2";
-      tabRules.className = "text-xs font-bold text-slate-400 hover:text-slate-700 pb-2";
+      tabFacts.style.cssText = "color:var(--violet-light);border-bottom-color:var(--violet-primary);";
+      tabRules.style.cssText = "color:var(--text-secondary);border-bottom-color:transparent;";
     }
   },
 
-  // MULTI-FORMAT CONTRAST CALCULATOR
+  // ─── WCAG CONTRAST CALCULATOR ─────────────────────────────────────────
   calculateContrast: function() {
     let fg = document.getElementById('fg-color').value;
     let bg = document.getElementById('bg-color').value;
-    
-    // Sync hex boxes
+
     document.getElementById('fg-hex').value = fg;
     document.getElementById('bg-hex').value = bg;
 
@@ -714,66 +820,65 @@ const app = {
     preview.style.backgroundColor = bg;
     preview.style.color = fg;
 
-    // Luminance math
     function lum(hex) {
       hex = hex.replace('#', '');
       const rgb = [0, 2, 4].map(idx => parseInt(hex.substr(idx, 2), 16) / 255);
-      const a = rgb.map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+      const a   = rgb.map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
       return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
     }
 
-    const l1 = lum(fg);
-    const l2 = lum(bg);
+    const l1    = lum(fg);
+    const l2    = lum(bg);
     const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-    const rounded = ratio.toFixed(1);
 
-    document.getElementById('contrast-ratio-val').innerText = `${rounded} : 1`;
+    document.getElementById('contrast-ratio-val').innerText = `${ratio.toFixed(1)} : 1`;
 
-    const aaBadge = document.getElementById('wcag-aa-badge');
+    const aaBadge  = document.getElementById('wcag-aa-badge');
+    const aaaBadge = document.getElementById('wcag-aaa-badge');
+
     if (ratio >= 4.5) {
-      aaBadge.className = "bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded";
-      aaBadge.innerText = "PASS";
+      aaBadge.className = 'badge badge-green font-heading';
+      aaBadge.innerText = 'PASS';
     } else {
-      aaBadge.className = "bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded";
-      aaBadge.innerText = "FAIL (< 4.5)";
+      aaBadge.className = 'badge badge-red font-heading';
+      aaBadge.innerText = 'FAIL (< 4.5)';
     }
 
-    const aaaBadge = document.getElementById('wcag-aaa-badge');
     if (ratio >= 7.0) {
-      aaaBadge.className = "bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded";
-      aaaBadge.innerText = "PASS";
+      aaaBadge.className = 'badge badge-green font-heading';
+      aaaBadge.innerText = 'PASS';
     } else {
-      aaaBadge.className = "bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded";
-      aaaBadge.innerText = "FAIL (< 7.0)";
+      aaaBadge.className = 'badge badge-red font-heading';
+      aaaBadge.innerText = 'FAIL (< 7.0)';
     }
   },
 
+  // ─── FILE UPLOAD ──────────────────────────────────────────────────────
   handleFileUpload: async function(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const statusEl = document.getElementById('file-parse-status');
     statusEl.classList.remove('hidden');
-    statusEl.innerText = `Ingesting ${file.name}...`;
+    statusEl.innerText = `Ingesting ${file.name}…`;
+    this.showToast(`Parsing ${file.name}…`, 'info');
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/v1/parser/extract-text', {
-        method: 'POST',
-        body: formData
-      });
+      const res  = await fetch('/api/v1/parser/extract-text', { method: 'POST', body: formData });
       const data = await res.json();
-      statusEl.innerHTML = `<strong>Successfully extracted:</strong> ${data.character_count} characters from ${data.file_type.toUpperCase()} file. Loaded into Review Workspace.`;
-      
-      // Load into editor and switch to workspace
+      statusEl.innerHTML = `<strong style="color:var(--cyan-accent);">Successfully extracted:</strong> ${data.character_count} characters from ${data.file_type.toUpperCase()} file. Loaded into Review Workspace.`;
+
       this.draftContent = data.extracted_text;
       document.getElementById('draft-input').value = this.draftContent;
       this.switchTab('workspace');
       this.runReview();
+      this.showToast(`${file.name} parsed — auto-running audit!`, 'success');
     } catch (e) {
       statusEl.innerText = `Failed to parse document: ${e.message}`;
+      this.showToast('File parse failed.', 'error');
     }
   }
 };

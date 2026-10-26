@@ -95,6 +95,25 @@ def create_and_review_draft(req: DraftCreateRequest, db: Session = Depends(get_d
         "findings_count": len(verified_findings)
     }
 
+@router.get("/escalated")
+def get_escalated_drafts(db: Session = Depends(get_db)):
+    """Improvement 2: Returns drafts in the human review escalation queue."""
+    drafts = db.query(DraftDocument).filter(
+        DraftDocument.assigned_role == 'reviewer',
+        DraftDocument.status.in_(['NEEDS_CHANGES', 'PENDING_APPROVAL'])
+    ).order_by(DraftDocument.updated_at.desc()).all()
+    return [
+        {
+            "id": d.id,
+            "title": d.title,
+            "status": d.status,
+            "assigned_role": d.assigned_role,
+            "creator_name": d.creator_name,
+            "updated_at": d.updated_at
+        }
+        for d in drafts
+    ]
+
 @router.get("")
 def list_drafts(db: Session = Depends(get_db)):
     drafts = db.query(DraftDocument).order_by(DraftDocument.updated_at.desc()).all()
