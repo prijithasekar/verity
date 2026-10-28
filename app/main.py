@@ -1,15 +1,16 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.core.config import settings
-from app.db.database import engine, Base, SessionLocal
+from app.db.database import engine, Base, SessionLocal, get_db
 from app.db.seed_data import seed_database
 from app.api.routes_kb import router as kb_router
 from app.api.routes_review import router as review_router
-from app.api.routes_workflow import router as workflow_router
+from app.api.routes_workflow import router as workflow_router, get_escalated_drafts
 from app.api.routes_analytics import router as analytics_router
 from app.api.routes_parser import router as parser_router
 
@@ -41,6 +42,12 @@ app.include_router(review_router, prefix=settings.API_V1_PREFIX)
 app.include_router(workflow_router, prefix=settings.API_V1_PREFIX)
 app.include_router(analytics_router, prefix=settings.API_V1_PREFIX)
 app.include_router(parser_router, prefix=settings.API_V1_PREFIX)
+
+# Direct alias for /api/v1/escalated (Improvement 2)
+@app.get(f"{settings.API_V1_PREFIX}/escalated", tags=["Review & Approval Workflow"])
+def get_escalated_drafts_alias(db: Session = Depends(get_db)):
+    """Convenience alias for /api/v1/drafts/escalated"""
+    return get_escalated_drafts(db)
 
 # Static Files & SPA Frontend
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")

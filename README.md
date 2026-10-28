@@ -45,8 +45,36 @@ python -m pytest tests/
 ## 🌟 The Three Key Hackathon Improvements
 
 1. **Code-Level Citation Verifier**: Findings whose cited source excerpts cannot be verified in code against the authoritative database are automatically discarded. Stops AI guideline hallucinations completely.
-2. **Three-Way Claim Verdicts (`SUPPORTED` / `CONTRADICTED` / `UNVERIFIABLE`)**: Unverifiable claims are never guessed; they are explicitly escalated to an **Authorised Reviewer**.
+2. **Three-Way Claim Verdicts (`SUPPORTED` / `CONTRADICTED` / `UNVERIFIABLE`) & Escalation Queue**: Unverifiable claims are never guessed; they are explicitly escalated to an **Authorised Reviewer**. The `/api/v1/escalated` and `/api/v1/drafts/escalated` endpoints provide real-time queue visibility for human reviewers.
 3. **Guideline-Clarity Insights Engine**: Tracks creator dismissals and required rationale to identify ambiguous rules (e.g. `CLAIM-04` with a 61.1% dispute rate) and gives Brand Admins actionable recommendations.
+
+---
+
+## 🎨 Round 3 Premium Visual System & Accessibility
+
+- **Design System**: Midnight navy (`#080B18`, `#10152A`, `#171B35`) surfaces with restrained violet (`#8B5CF6`) and subtle cyan (`#67E8F9`) accents.
+- **Enterprise Review Workspace**: Side-by-side view with live interactive highlighted phrases, readability grading, and code-verified evidence citations.
+- **Micro-Interactions**: Lightweight toast notification feedback, shimmer loading skeletons, and interactive WCAG contrast calculator.
+- **Accessibility (WCAG 2.1 AA)**: Visible focus outlines (`:focus-visible`), ARIA dialog roles on modals, keyboard navigation with Escape key dismissal, and semantic contrast compliance.
+
+---
+
+## 📡 API Reference Overview
+
+| Route | Method | Description |
+| :--- | :--- | :--- |
+| `/api/v1/review/analyze` | `POST` | Full pre-publication scan (PII scrub, readability, citations, 3-way verdicts). |
+| `/api/v1/drafts` | `POST` / `GET` | Create & auto-review new drafts or list all active draft documents. |
+| `/api/v1/drafts/{id}` | `GET` | Retrieve complete draft document, version history, findings, and audit log. |
+| `/api/v1/drafts/{id}/action-finding/{fid}` | `POST` | Accept (creates v2 auto-rewrite), edit, or dismiss a finding with documented reason. |
+| `/api/v1/drafts/{id}/transition` | `POST` | Workflow transition (`NEEDS_CHANGES`, `PENDING_APPROVAL`, `APPROVED`). |
+| `/api/v1/drafts/escalated` | `GET` | Retrieve drafts currently in the human reviewer escalation queue. |
+| `/api/v1/escalated` | `GET` | Direct alias for `/api/v1/drafts/escalated`. |
+| `/api/v1/analytics/guideline-clarity`| `GET` | Compute ambiguity metrics, dispute ratios, and guideline gaps from real data. |
+| `/api/v1/knowledge-base/rules` | `GET` / `POST`| List authoritative brand rules or register new rules with exact source quotes. |
+| `/api/v1/knowledge-base/facts` | `GET` / `POST`| List approved brand facts with verified validation dates and approvals. |
+| `/api/v1/parser/extract-text` | `POST` | Multi-format parser extracting text from DOCX, PDF, and TXT files. |
+| `/health` | `GET` | System health check and model disclosure status. |
 
 ---
 

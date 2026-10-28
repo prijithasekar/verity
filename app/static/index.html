@@ -220,6 +220,14 @@
       border-color: var(--violet-primary);
       box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
     }
+    :focus-visible {
+      outline: 2px solid var(--violet-light);
+      outline-offset: 2px;
+    }
+    option {
+      background-color: #171B35;
+      color: #F5F3FF;
+    }
     ::placeholder { color: var(--ink-muted, #6B7094); }
 
     /* ── Stat Cards ── */
@@ -333,7 +341,7 @@
 <body>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none" role="region" aria-live="polite" aria-atomic="true" aria-label="Notifications"></div>
 
   <!-- ═══════════════════════════════════════════════════════ HEADER ═══ -->
   <header style="background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);" class="sticky top-0 z-40">
@@ -382,34 +390,34 @@
 
     <!-- Navigation Tabs -->
     <div style="border-top:1px solid var(--border-subtle);padding:0 2rem;" class="px-4 sm:px-8">
-      <nav class="max-w-7xl mx-auto flex gap-6 sm:gap-8 overflow-x-auto">
-        <button onclick="app.switchTab('workspace')" id="tab-workspace" class="nav-tab active">
+      <nav class="max-w-7xl mx-auto flex gap-6 sm:gap-8 overflow-x-auto" role="tablist" aria-label="Application Sections">
+        <button onclick="app.switchTab('workspace')" id="tab-workspace" class="nav-tab active" role="tab" aria-selected="true" aria-controls="view-workspace">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           Review Workspace
         </button>
-        <button onclick="app.switchTab('clarity')" id="tab-clarity" class="nav-tab">
+        <button onclick="app.switchTab('clarity')" id="tab-clarity" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-clarity">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
           Guideline Insights
           <span class="imp-badge">Imp 3</span>
         </button>
-        <button onclick="app.switchTab('kb')" id="tab-kb" class="nav-tab">
+        <button onclick="app.switchTab('kb')" id="tab-kb" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-kb">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
           Brand Knowledge Base
         </button>
-        <button onclick="app.switchTab('multiformat')" id="tab-multiformat" class="nav-tab">
+        <button onclick="app.switchTab('multiformat')" id="tab-multiformat" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-multiformat">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
           Contrast &amp; Assets
         </button>
-        <button onclick="app.switchTab('audit')" id="tab-audit" class="nav-tab">
+        <button onclick="app.switchTab('audit')" id="tab-audit" class="nav-tab" role="tab" aria-selected="false" aria-controls="view-audit">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
@@ -799,17 +807,18 @@
 
   <!-- ═══════════════════════════ MODAL: Dismiss Finding ═══════════════ -->
   <div id="dismiss-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+       role="dialog" aria-modal="true" aria-labelledby="dismiss-modal-title"
        style="background:rgba(8,11,24,0.85);backdrop-filter:blur(6px);">
     <div class="card max-w-md w-full p-6 space-y-4 glow-violet" style="border-color:rgba(139,92,246,0.4);">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading text-base font-bold" style="color:var(--text-primary);">Dismiss Finding</h3>
-        <button onclick="app.closeDismissModal()" class="w-7 h-7 flex items-center justify-center rounded-lg btn-secondary text-lg leading-none">&times;</button>
+        <h3 id="dismiss-modal-title" class="font-heading text-base font-bold" style="color:var(--text-primary);">Dismiss Finding</h3>
+        <button onclick="app.closeDismissModal()" class="w-7 h-7 flex items-center justify-center rounded-lg btn-secondary text-lg leading-none" aria-label="Close dialog">&times;</button>
       </div>
       <p class="text-xs leading-relaxed" style="color:var(--text-secondary);">
         In accordance with Verity governance, dismissing a finding requires a documented reason. Your feedback feeds the <strong style="color:var(--violet-light);">Guideline Clarity Insights</strong> to identify ambiguous rules.
       </p>
       <div>
-        <label class="block font-heading text-[11px] font-bold mb-1.5" style="color:var(--text-secondary);">Reason for Dismissal / Dispute <span style="color:var(--red-status);">*</span></label>
+        <label for="dismissal-reason-input" class="block font-heading text-[11px] font-bold mb-1.5" style="color:var(--text-secondary);">Reason for Dismissal / Dispute <span style="color:var(--red-status);">*</span></label>
         <textarea id="dismissal-reason-input" rows="3"
                   class="w-full text-xs p-3 rounded-xl focus:outline-none"
                   style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);"
@@ -824,15 +833,16 @@
 
   <!-- ═══════════════════════════ MODAL: Edit Replacement ═════════════ -->
   <div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+       role="dialog" aria-modal="true" aria-labelledby="edit-modal-title"
        style="background:rgba(8,11,24,0.85);backdrop-filter:blur(6px);">
     <div class="card max-w-md w-full p-6 space-y-4 glow-violet" style="border-color:rgba(139,92,246,0.4);">
       <div class="flex items-center justify-between">
-        <h3 class="font-heading text-base font-bold" style="color:var(--text-primary);">Custom Replacement</h3>
-        <button onclick="app.closeEditModal()" class="w-7 h-7 flex items-center justify-center rounded-lg btn-secondary text-lg leading-none">&times;</button>
+        <h3 id="edit-modal-title" class="font-heading text-base font-bold" style="color:var(--text-primary);">Custom Replacement</h3>
+        <button onclick="app.closeEditModal()" class="w-7 h-7 flex items-center justify-center rounded-lg btn-secondary text-lg leading-none" aria-label="Close dialog">&times;</button>
       </div>
       <p class="text-xs" style="color:var(--text-secondary);">Provide an intent-preserving custom rewrite for this flagged phrase:</p>
       <div>
-        <label class="block font-heading text-[11px] font-bold mb-1.5" style="color:var(--text-secondary);">Replacement Text</label>
+        <label for="edit-replacement-input" class="block font-heading text-[11px] font-bold mb-1.5" style="color:var(--text-secondary);">Replacement Text</label>
         <input type="text" id="edit-replacement-input"
                class="w-full text-xs p-2.5 rounded-xl focus:outline-none mono"
                style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);">

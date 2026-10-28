@@ -57,14 +57,17 @@ const app = {
       if (t === tabName) {
         el.classList.remove('hidden');
         btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
       } else {
         el.classList.add('hidden');
         btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
       }
     });
 
     if (tabName === 'clarity')  this.loadClarityInsights();
     else if (tabName === 'kb')  this.loadKnowledgeBase();
+    else if (tabName === 'audit') this.renderAuditLogs();
   },
 
   // ─── ROLE SWITCHING ───────────────────────────────────────────────────
@@ -886,4 +889,12 @@ const app = {
 // Start application
 window.addEventListener('DOMContentLoaded', () => {
   app.init();
+});
+
+// Accessible keyboard navigation
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    app.closeDismissModal();
+    app.closeEditModal();
+  }
 });
