@@ -119,6 +119,15 @@ class WorkflowTransitionRequest(BaseModel):
     actor_name: str
     comment: Optional[str] = None
 
+class RuleRefineRequest(BaseModel):
+    new_description: str
+    new_exact_source_text: str
+    new_banned_pattern: Optional[str] = None
+    new_preferred_pattern: Optional[str] = None
+    actor_name: str = "Brand Administrator"
+    rationale: str
+    draft_id: Optional[str] = None
+
 class ContrastCheckRequest(BaseModel):
     fg_hex: str
     bg_hex: str

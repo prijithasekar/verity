@@ -124,7 +124,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    draft_id = Column(String, ForeignKey("draft_documents.id"), nullable=False)
+    draft_id = Column(String, ForeignKey("draft_documents.id"), nullable=True)
     action = Column(String, nullable=False) # e.g. DRAFT_SUBMITTED, FINDING_ACCEPTED, ESCALATED_TO_REVIEWER, APPROVED
     actor = Column(String, nullable=False)
     actor_role = Column(String, nullable=False)

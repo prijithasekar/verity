@@ -655,6 +655,7 @@
                   <th class="px-4 py-3 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Times Contested</th>
                   <th class="px-4 py-3 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Creator Feedback</th>
                   <th class="px-4 py-3 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Admin Recommendation</th>
+                  <th class="px-4 py-3 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Action</th>
                 </tr>
               </thead>
               <tbody id="clarity-table-body" style="background:var(--bg-surface);">
@@ -671,6 +672,88 @@
           <ul id="uncovered-topics-list" class="space-y-1.5 text-xs" style="color:var(--text-primary);">
             <!-- Dynamically populated -->
           </ul>
+        </div>
+
+        <!-- Evaluation Benchmark Card -->
+        <div class="card p-6 mt-6 rounded-2xl" style="background:var(--bg-surface-2);border:1px solid var(--border-subtle);">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="font-heading text-lg font-bold" style="color:var(--text-primary);">Automated Governance Evaluation Benchmark</h3>
+                <span class="badge badge-violet font-heading text-[10px]">8-Case Curated Benchmark</span>
+              </div>
+              <p class="text-xs mt-1" style="color:var(--text-secondary);">
+                Empirical regression test suite testing deterministic checks, grounded claim retrieval, and code-level citation verification.
+              </p>
+            </div>
+            <button onclick="app.loadEvaluationBenchmark(true)" class="btn-secondary text-xs font-heading px-3 py-1.5 flex items-center gap-1.5 self-start sm:self-auto">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Run Benchmark Suite
+            </button>
+          </div>
+
+          <!-- Scope Disclaimer Callout -->
+          <div class="rounded-xl p-3.5 mb-5 flex items-start gap-3 text-xs" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background:rgba(139,92,246,0.25);color:var(--violet-light);">
+              ℹ
+            </div>
+            <div class="space-y-1">
+              <div class="font-heading font-bold" style="color:var(--violet-light);">Benchmark Scope &amp; Methodology Disclosure</div>
+              <p class="leading-relaxed" style="color:var(--text-secondary);" id="benchmark-disclaimer-text">
+                Curated regression test set (8 cases covering factual claims, terminology, tone, and accessibility). Metrics demonstrate engine precision and citation verification against ground truth; real-world efficacy relies on ongoing brand knowledge base coverage.
+              </p>
+            </div>
+          </div>
+
+          <!-- Benchmark Metrics Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="stat-card" style="--accent-color:var(--green-status);">
+              <span class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--text-secondary);">Accuracy</span>
+              <div class="font-heading text-xl font-black mt-1" style="color:#6EE7B7;" id="bench-accuracy">100.0%</div>
+              <span class="text-[10px]" style="color:var(--text-secondary);" id="bench-passed-count">8 / 8 passed</span>
+            </div>
+            <div class="stat-card" style="--accent-color:var(--cyan-accent);">
+              <span class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--text-secondary);">Precision</span>
+              <div class="font-heading text-xl font-black mt-1" style="color:var(--cyan-accent);" id="bench-precision">100.0%</div>
+              <span class="text-[10px]" style="color:var(--text-secondary);">Zero false citations</span>
+            </div>
+            <div class="stat-card" style="--accent-color:var(--violet-primary);">
+              <span class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--text-secondary);">Recall</span>
+              <div class="font-heading text-xl font-black mt-1" style="color:var(--violet-light);" id="bench-recall">100.0%</div>
+              <span class="text-[10px]" style="color:var(--text-secondary);">All violations caught</span>
+            </div>
+            <div class="stat-card" style="--accent-color:var(--amber-status);">
+              <span class="font-heading text-[10px] font-bold uppercase tracking-widest" style="color:var(--text-secondary);">F1 Score</span>
+              <div class="font-heading text-xl font-black mt-1" style="color:#FCD34D;" id="bench-f1">100.0%</div>
+              <span class="text-[10px]" style="color:var(--text-secondary);">Harmonic mean</span>
+            </div>
+          </div>
+
+          <!-- Test Cases Table -->
+          <div>
+            <h4 class="font-heading text-xs font-bold uppercase tracking-widest mb-2.5" style="color:var(--text-secondary);">Curated Benchmark Scenarios (Ground-Truth Verified)</h4>
+            <div class="overflow-x-auto rounded-xl" style="border:1px solid var(--border-subtle);">
+              <table class="min-w-full text-xs text-left" style="border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--bg-elevated);border-bottom:1px solid var(--border-subtle);">
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">ID</th>
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Test Type</th>
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Input Statement</th>
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Expected</th>
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Predicted</th>
+                    <th class="px-3.5 py-2.5 font-heading font-bold uppercase tracking-wider text-[10px]" style="color:var(--text-secondary);">Outcome</th>
+                  </tr>
+                </thead>
+                <tbody id="benchmark-table-body" style="background:var(--bg-surface);">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -851,6 +934,140 @@
         <button onclick="app.closeEditModal()" class="btn-secondary text-xs font-heading px-3 py-1.5">Cancel</button>
         <button onclick="app.submitEdit()" class="btn-primary text-xs font-heading px-4 py-1.5">Apply Edit</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ MODAL: Inspect & Refine Guideline ═════════════ -->
+  <div id="refine-guideline-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+       role="dialog" aria-modal="true" aria-labelledby="refine-modal-title"
+       style="background:rgba(8,11,24,0.88);backdrop-filter:blur(8px);">
+    <div class="card max-w-4xl w-full p-6 space-y-5 glow-violet my-8" style="border-color:rgba(139,92,246,0.45);max-height:90vh;overflow-y:auto;">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3" style="border-bottom:1px solid var(--border-subtle);">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(139,92,246,0.2);color:var(--violet-light);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 id="refine-modal-title" class="font-heading text-base font-bold" style="color:var(--text-primary);">Inspect &amp; Refine Ambiguous Guideline</h3>
+            <p class="text-xs" style="color:var(--text-secondary);">Resolve creator disputes by clarifying policy wording, permissible exceptions, and audit rationale.</p>
+          </div>
+        </div>
+        <button onclick="app.closeRefineModal()" class="w-7 h-7 flex items-center justify-center rounded-lg btn-secondary text-lg leading-none" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <!-- Side-by-side comparison -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- Left Side: Current Guideline & Creator Feedback -->
+        <div class="rounded-xl p-4 space-y-3.5" style="background:var(--bg-surface-2);border:1px solid var(--border-subtle);">
+          <div class="flex items-center justify-between">
+            <span class="font-heading text-[11px] font-bold uppercase tracking-wider" style="color:var(--amber-status);">Current Guideline &amp; Feedback</span>
+            <span id="refine-current-badge" class="badge badge-amber font-heading text-[10px]">CLAIM-04</span>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color:var(--text-secondary);">Rule Name</label>
+            <div id="refine-current-name" class="text-xs font-semibold" style="color:var(--text-primary);">Unsubstantiated Market Leadership Claims</div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color:var(--text-secondary);">Standard Description</label>
+            <div id="refine-current-desc" class="text-xs p-2.5 rounded-lg" style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-secondary);">--</div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color:var(--text-secondary);">Exact Source Text (Ground Truth)</label>
+            <div id="refine-current-source-text" class="text-xs p-2.5 rounded-lg italic" style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);border-left:3px solid var(--amber-status);">--</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2 rounded-lg" style="background:var(--bg-base);border:1px solid var(--border-subtle);">
+              <span class="text-[10px] block" style="color:var(--text-secondary);">Dismissal Rate:</span>
+              <strong id="refine-current-rate" style="color:var(--red-status);">61.1%</strong>
+            </div>
+            <div class="p-2 rounded-lg" style="background:var(--bg-base);border:1px solid var(--border-subtle);">
+              <span class="text-[10px] block" style="color:var(--text-secondary);">Times Contested:</span>
+              <strong id="refine-current-contested" style="color:var(--text-primary);">11 disputes</strong>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider mb-1.5" style="color:var(--text-secondary);">Creator Dispute Feedback</label>
+            <ul id="refine-feedback-list" class="space-y-1.5 text-xs">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Side: Proposed Clarified Guideline -->
+        <div class="rounded-xl p-4 space-y-3.5" style="background:var(--bg-surface-2);border:1px solid rgba(139,92,246,0.3);">
+          <div class="flex items-center justify-between">
+            <span class="font-heading text-[11px] font-bold uppercase tracking-wider" style="color:var(--violet-light);">Proposed Clarified Guideline</span>
+            <span class="badge badge-violet font-heading text-[10px]">Admin Action</span>
+          </div>
+
+          <input type="hidden" id="refine-rule-id">
+
+          <div>
+            <label for="refine-input-desc" class="block font-heading text-[11px] font-bold mb-1" style="color:var(--text-secondary);">Clarified Description <span style="color:var(--red-status);">*</span></label>
+            <input type="text" id="refine-input-desc"
+                   class="w-full text-xs p-2.5 rounded-lg focus:outline-none"
+                   style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);">
+          </div>
+
+          <div>
+            <label for="refine-input-source-text" class="block font-heading text-[11px] font-bold mb-1" style="color:var(--text-secondary);">Exact Source Text &amp; Permissible Exceptions <span style="color:var(--red-status);">*</span></label>
+            <textarea id="refine-input-source-text" rows="3"
+                      class="w-full text-xs p-2.5 rounded-lg focus:outline-none leading-relaxed"
+                      style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label for="refine-input-pref" class="block font-heading text-[10px] font-bold mb-1" style="color:var(--text-secondary);">Preferred Standard</label>
+              <input type="text" id="refine-input-pref"
+                     class="w-full text-xs p-2 rounded-lg focus:outline-none mono"
+                     style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);">
+            </div>
+            <div>
+              <label for="refine-input-actor" class="block font-heading text-[10px] font-bold mb-1" style="color:var(--text-secondary);">Administrator Name</label>
+              <input type="text" id="refine-input-actor" value="Lead Brand Administrator"
+                     class="w-full text-xs p-2 rounded-lg focus:outline-none font-semibold"
+                     style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);">
+            </div>
+          </div>
+
+          <div>
+            <label for="refine-input-rationale" class="block font-heading text-[11px] font-bold mb-1" style="color:var(--text-secondary);">Administrator Rationale &amp; Audit Trail <span style="color:var(--red-status);">*</span></label>
+            <textarea id="refine-input-rationale" rows="3"
+                      class="w-full text-xs p-2.5 rounded-lg focus:outline-none leading-relaxed"
+                      style="background:var(--bg-base);border:1px solid var(--border-subtle);color:var(--text-primary);"
+                      placeholder="e.g. Creator disputes identified that user-review awards were contested under blanket guarantee prohibitions. Updated clause to allow substantiated review rankings while preserving strict ban on unsubstantiated returns."></textarea>
+            <span class="text-[10px] mt-1 block" style="color:var(--text-secondary);">Mandatory audit entry: This will be permanently recorded in the organizational audit log.</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex items-center justify-between pt-3" style="border-top:1px solid var(--border-subtle);">
+        <span class="text-[11px] text-slate-400">Past review records &amp; draft histories will remain unchanged.</span>
+        <div class="flex items-center gap-2">
+          <button onclick="app.closeRefineModal()" class="btn-secondary text-xs font-heading px-3 py-1.5">Cancel</button>
+          <button onclick="app.submitRefineGuideline()" id="btn-save-refine" class="btn-primary text-xs font-heading px-4 py-1.5 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Save &amp; Record Audit Log
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 

@@ -1,7 +1,14 @@
+import os
+import json
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.db_models import BrandRule, Finding, DraftDocument
+from app.services.privacy_filter import PrivacyFilter
+from app.services.deterministic_checker import DeterministicChecker
+from app.services.claim_extractor import ClaimExtractor
+from app.services.grounded_retriever import GroundedRetriever
+from app.services.citation_verifier import CitationVerifier
 
 class GovernanceInsightsService:
     """
@@ -60,6 +67,10 @@ class GovernanceInsightsService:
                 "id": r.id,
                 "category": r.category,
                 "rule_name": r.rule_name,
+                "description": r.description,
+                "exact_source_text": r.exact_source_text,
+                "preferred_pattern": r.preferred_pattern,
+                "banned_pattern": r.banned_pattern,
                 "severity": r.severity,
                 "source_reference": r.source_reference,
                 "times_flagged": flagged,
@@ -105,4 +116,94 @@ class GovernanceInsightsService:
                 "Comparison benchmarks against competitor software",
                 "Regional currency notation standardization (INR vs USD)"
             ]
+        }
+
+    @classmethod
+    def run_evaluation_benchmark(cls, db: Session) -> Dict[str, Any]:
+        """
+        Runs the full verification pipeline on the curated 8-case benchmark dataset.
+        Evaluates grounded retrieval, citation verification, and 3-way verdicts.
+        Returns authentic evaluation metrics and results with honest scope disclaimers.
+        """
+        dataset_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "evaluation", "labelled_test_set.json")
+        )
+        if not os.path.exists(dataset_path):
+            return {
+                "error": f"Evaluation dataset not found at {dataset_path}",
+                "summary": {"total_cases": 0, "passed_cases": 0, "failed_cases": 0, "accuracy": 0.0},
+                "test_cases": []
+            }
+
+        with open(dataset_path, "r", encoding="utf-8") as f:
+            test_cases = json.load(f)
+
+        correct_predictions = 0
+        total_cases = len(test_cases)
+        tp = fp = fn = tn = 0
+        results_table = []
+
+        for test in test_cases:
+            text = test["text"]
+            expected_verdict = test["expected_verdict"]
+
+            sanitized_text, _ = PrivacyFilter.sanitize(text)
+            det_findings = DeterministicChecker.scan_deterministic_rules(sanitized_text, db)
+            claims = ClaimExtractor.extract_claims(sanitized_text)
+            claim_findings = GroundedRetriever.evaluate_claims(claims, db)
+            raw_candidates = det_findings + claim_findings
+            verified_findings, _ = CitationVerifier.filter_and_verify_findings(raw_candidates, db)
+
+            if not verified_findings:
+                predicted_verdict = "CLEAN"
+                matched_id = None
+            else:
+                first_f = verified_findings[0]
+                if first_f.get("claim_verdict") in ["UNVERIFIABLE", "CONTRADICTED"]:
+                    predicted_verdict = first_f["claim_verdict"]
+                else:
+                    predicted_verdict = "VIOLATION"
+                matched_id = first_f.get("rule_or_fact_id")
+
+            is_match = (predicted_verdict == expected_verdict)
+            if is_match:
+                correct_predictions += 1
+                if expected_verdict == "CLEAN":
+                    tn += 1
+                else:
+                    tp += 1
+            else:
+                if expected_verdict == "CLEAN":
+                    fp += 1
+                else:
+                    fn += 1
+
+            results_table.append({
+                "id": test["id"],
+                "type": test["type"],
+                "text": text,
+                "expected": expected_verdict,
+                "predicted": predicted_verdict,
+                "pass": is_match,
+                "rule_id": matched_id,
+                "notes": test.get("notes", "")
+            })
+
+        accuracy = round((correct_predictions / total_cases) * 100, 1) if total_cases > 0 else 0.0
+        precision = round((tp / (tp + fp) * 100), 1) if (tp + fp) > 0 else 100.0
+        recall = round((tp / (tp + fn) * 100), 1) if (tp + fn) > 0 else 100.0
+        f1 = round((2 * precision * recall / (precision + recall)), 1) if (precision + recall) > 0 else 0.0
+
+        return {
+            "summary": {
+                "total_cases": total_cases,
+                "passed_cases": correct_predictions,
+                "failed_cases": total_cases - correct_predictions,
+                "accuracy": accuracy,
+                "precision": precision,
+                "recall": recall,
+                "f1_score": f1
+            },
+            "scope_disclaimer": "Curated regression test set (8 cases covering factual claims, terminology, tone, and accessibility). Metrics demonstrate engine precision and citation verification against ground truth; real-world efficacy relies on ongoing brand knowledge base coverage.",
+            "test_cases": results_table
         }

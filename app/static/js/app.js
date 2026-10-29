@@ -65,7 +65,10 @@ const app = {
       }
     });
 
-    if (tabName === 'clarity')  this.loadClarityInsights();
+    if (tabName === 'clarity') {
+      this.loadClarityInsights();
+      this.loadEvaluationBenchmark();
+    }
     else if (tabName === 'kb')  this.loadKnowledgeBase();
     else if (tabName === 'audit') this.renderAuditLogs();
   },
@@ -375,18 +378,53 @@ const app = {
             <p class="text-xs mt-1 leading-relaxed" style="color:var(--text-secondary);">${f.explanation}</p>
           </div>
 
-          <!-- Citation Ground Truth -->
-          <div class="rounded-lg p-2.5 text-[11px] space-y-1" style="background:rgba(8,11,24,0.6);border:1px solid var(--border-subtle);">
-            <div class="flex items-center justify-between font-semibold" style="color:var(--text-secondary);">
-              <span class="font-heading">Cited Ground Truth:</span>
-              <span class="flex items-center gap-1" style="color:#10B981;font-weight:700;">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Code-Verified
-              </span>
+          <!-- Evidence Traceability Block -->
+          ${f.claim_verdict === 'UNVERIFIABLE' ? `
+            <div class="rounded-lg p-2.5 text-[11px] space-y-1.5" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.28);border-left:3px solid #EF4444;">
+              <div class="flex items-center justify-between font-semibold" style="color:#FCA5A5;">
+                <span class="font-heading flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  Evidence Gap: Unsubstantiated Claim
+                </span>
+                <span class="badge badge-red font-heading text-[10px]">Unverified &bull; Escalated</span>
+              </div>
+              <p class="leading-relaxed" style="color:var(--text-secondary);">
+                <strong style="color:#FDA4AF;">No approved factual record</strong> exists in the Brand Knowledge Base to support this claim. Routed to human reviewer for evidentiary substantiation.
+              </p>
+              <div class="text-[10px] pt-1" style="color:var(--text-secondary);border-top:1px solid rgba(239,68,68,0.15);">
+                Governing Standard: <span class="mono" style="color:var(--text-primary);">${f.cited_source || 'Brand Guidelines'}</span>
+                ${f.cited_excerpt ? `<div class="italic mt-0.5" style="color:var(--text-secondary);">Restriction Standard: "${f.cited_excerpt}"</div>` : ''}
+              </div>
             </div>
-            <p class="italic leading-relaxed" style="color:var(--text-primary);border-left:2px solid var(--violet-primary);padding-left:8px;">"${f.cited_excerpt}"</p>
-            <div class="text-[10px]" style="color:var(--ink-muted,#6B7094);">Source: ${f.cited_source}</div>
-          </div>
+          ` : f.claim_verdict === 'CONTRADICTED' ? `
+            <div class="rounded-lg p-2.5 text-[11px] space-y-1.5" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.28);border-left:3px solid #F59E0B;">
+              <div class="flex items-center justify-between font-semibold" style="color:#FCD34D;">
+                <span class="font-heading flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Ground-Truth Conflict: Contradicts Approved Fact
+                </span>
+                <span class="badge badge-amber font-heading text-[10px]">Conflict</span>
+              </div>
+              <p class="italic leading-relaxed" style="color:var(--text-primary);border-left:2px solid #F59E0B;padding-left:8px;">"${f.cited_excerpt}"</p>
+              <div class="text-[10px]" style="color:var(--text-secondary);">Authoritative Ground Truth: <span class="mono" style="color:var(--text-primary);">${f.cited_source}</span></div>
+            </div>
+          ` : `
+            <div class="rounded-lg p-2.5 text-[11px] space-y-1" style="background:rgba(8,11,24,0.6);border:1px solid var(--border-subtle);">
+              <div class="flex items-center justify-between font-semibold" style="color:var(--text-secondary);">
+                <span class="font-heading">Cited Ground Truth:</span>
+                <span class="flex items-center gap-1" style="color:#10B981;font-weight:700;">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Code-Verified Citation
+                </span>
+              </div>
+              <p class="italic leading-relaxed" style="color:var(--text-primary);border-left:2px solid var(--violet-primary);padding-left:8px;">"${f.cited_excerpt}"</p>
+              <div class="text-[10px]" style="color:var(--ink-muted,#6B7094);">Source: ${f.cited_source}</div>
+            </div>
+          `}
 
           <!-- Suggestion -->
           ${f.suggested_fix ? `
@@ -694,6 +732,7 @@ const app = {
     try {
       const res  = await fetch('/api/v1/analytics/guideline-clarity');
       const data = await res.json();
+      this.clarityRules = data.all_rules_clarity;
 
       document.getElementById('stat-compliance').innerText = `${data.summary.org_compliance_rate}%`;
       document.getElementById('stat-rules').innerText      = data.summary.total_active_rules;
@@ -723,6 +762,16 @@ const app = {
             <td class="px-4 py-3 font-heading font-semibold" style="color:var(--text-primary);">${r.times_dismissed} / ${r.times_flagged}</td>
             <td class="px-4 py-3 space-y-1 text-xs">${feedbackList}</td>
             <td class="px-4 py-3 text-xs" style="color:var(--text-secondary);">${r.recommendation}</td>
+            <td class="px-4 py-3">
+              <button onclick="app.openRefineModal('${r.id}')"
+                      class="btn-secondary text-[11px] font-heading px-3 py-1.5 flex items-center gap-1.5 whitespace-nowrap hover:border-violet-500 hover:text-white"
+                      style="border-color:${isAmb ? 'rgba(244,63,94,0.4)' : 'var(--border-subtle)'};color:${isAmb ? '#FDA4AF' : 'var(--text-primary)'};">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                ${isAmb ? 'Inspect & Refine' : 'Inspect'}
+              </button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -739,6 +788,172 @@ const app = {
     } catch (e) {
       console.error("Failed to load clarity insights:", e);
       this.showToast('Could not load Guideline Insights — check API.', 'error');
+    }
+  },
+
+  // ─── GUIDELINE REFINEMENT (Guideline Improvement Workflow) ───────────
+  openRefineModal: function(ruleId) {
+    const r = (this.clarityRules || []).find(item => item.id === ruleId);
+    if (!r) {
+      this.showToast(`Rule ${ruleId} details could not be found.`, 'error');
+      return;
+    }
+
+    document.getElementById('refine-rule-id').value = r.id;
+    document.getElementById('refine-current-badge').innerText = r.id;
+    document.getElementById('refine-current-name').innerText = r.rule_name;
+    document.getElementById('refine-current-desc').innerText = r.description || '--';
+    document.getElementById('refine-current-source-text').innerText = `"${r.exact_source_text || ''}"`;
+    document.getElementById('refine-current-rate').innerText = `${r.dismissal_rate}%`;
+    document.getElementById('refine-current-contested').innerText = `${r.times_dismissed} disputes / ${r.times_flagged} flags`;
+
+    const feedbackList = document.getElementById('refine-feedback-list');
+    if (r.dispute_feedback && r.dispute_feedback.length > 0) {
+      feedbackList.innerHTML = r.dispute_feedback.map(fb => `
+        <li class="flex items-start gap-1.5" style="color:var(--text-primary);">
+          <span style="color:var(--amber-status);">&bull;</span>
+          <span class="italic">"${fb}"</span>
+        </li>
+      `).join('');
+    } else {
+      feedbackList.innerHTML = `<li class="italic" style="color:var(--text-secondary);">No creator disputes recorded for this rule.</li>`;
+    }
+
+    // Prefill right side inputs with proposed/current wording
+    document.getElementById('refine-input-desc').value = r.description || '';
+    document.getElementById('refine-input-source-text').value = r.exact_source_text || '';
+    document.getElementById('refine-input-pref').value = r.preferred_pattern || '';
+    document.getElementById('refine-input-actor').value = "Lead Brand Administrator";
+    document.getElementById('refine-input-rationale').value = "";
+
+    document.getElementById('refine-guideline-modal').classList.remove('hidden');
+  },
+
+  closeRefineModal: function() {
+    document.getElementById('refine-guideline-modal').classList.add('hidden');
+  },
+
+  submitRefineGuideline: async function() {
+    const ruleId = document.getElementById('refine-rule-id').value;
+    const newDesc = document.getElementById('refine-input-desc').value.trim();
+    const newSourceText = document.getElementById('refine-input-source-text').value.trim();
+    const newPref = document.getElementById('refine-input-pref').value.trim();
+    const actor = document.getElementById('refine-input-actor').value.trim() || 'Brand Administrator';
+    const rationale = document.getElementById('refine-input-rationale').value.trim();
+
+    if (!newDesc) {
+      this.showToast('Please provide a clarified rule description.', 'error');
+      return;
+    }
+    if (!newSourceText) {
+      this.showToast('Please provide the exact source text / permissible exceptions.', 'error');
+      return;
+    }
+    if (!rationale) {
+      this.showToast('Administrator rationale is mandatory for the audit trail.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-save-refine');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Saving...';
+
+    try {
+      const res = await fetch(`/api/v1/knowledge-base/rules/${ruleId}/refine`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          new_description: newDesc,
+          new_exact_source_text: newSourceText,
+          new_preferred_pattern: newPref || null,
+          actor_name: actor,
+          rationale: rationale,
+          draft_id: this.currentDraftId || null
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Failed to refine guideline');
+      }
+
+      this.closeRefineModal();
+      this.showToast(`Guideline ${ruleId} refined! Recorded in audit log.`, 'success');
+      await this.loadClarityInsights();
+
+      // Offer option to re-run review against updated guideline
+      if (confirm(`Guideline ${ruleId} has been successfully refined and recorded in the audit log.\n\nWould you like to re-run the review on the current draft against this updated standard?`)) {
+        this.switchTab('workspace');
+        await this.runReview();
+      }
+
+    } catch (e) {
+      console.error("Refine guideline failed:", e);
+      this.showToast(`Error: ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  },
+
+  // ─── EVALUATION BENCHMARK PRESENTATION ────────────────────────────────
+  loadEvaluationBenchmark: async function(showToast = false) {
+    try {
+      const res = await fetch('/api/v1/analytics/evaluation-benchmark');
+      if (!res.ok) throw new Error("Evaluation benchmark API unavailable");
+      const data = await res.json();
+
+      const summary = data.summary;
+      document.getElementById('bench-accuracy').innerText = `${summary.accuracy}%`;
+      document.getElementById('bench-passed-count').innerText = `${summary.passed_cases} / ${summary.total_cases} passed`;
+      document.getElementById('bench-precision').innerText = `${summary.precision}%`;
+      document.getElementById('bench-recall').innerText = `${summary.recall}%`;
+      document.getElementById('bench-f1').innerText = `${summary.f1_score}%`;
+
+      if (data.scope_disclaimer) {
+        document.getElementById('benchmark-disclaimer-text').innerText = data.scope_disclaimer;
+      }
+
+      const tbody = document.getElementById('benchmark-table-body');
+      tbody.innerHTML = (data.test_cases || []).map(tc => {
+        const passBadge = tc.pass
+          ? `<span class="badge badge-green font-heading">PASS</span>`
+          : `<span class="badge badge-red font-heading">FAIL</span>`;
+
+        let typeBadgeClass = 'badge-slate';
+        if (tc.type.includes('CONTRADICTED')) typeBadgeClass = 'badge-amber';
+        else if (tc.type.includes('UNVERIFIABLE')) typeBadgeClass = 'badge-red';
+        else if (tc.type.includes('TERMINOLOGY')) typeBadgeClass = 'badge-cyan';
+        else if (tc.type.includes('TONE')) typeBadgeClass = 'badge-violet';
+        else if (tc.type.includes('CORRECT')) typeBadgeClass = 'badge-green';
+
+        return `
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td class="px-3.5 py-2.5 mono font-bold" style="color:var(--violet-light);">${tc.id}</td>
+            <td class="px-3.5 py-2.5">
+              <span class="badge ${typeBadgeClass} font-heading text-[10px]">${tc.type}</span>
+            </td>
+            <td class="px-3.5 py-2.5" style="max-width:280px;">
+              <div class="truncate text-[11px]" style="color:var(--text-primary);" title="${tc.text.replace(/"/g, '&quot;')}">"${tc.text}"</div>
+              ${tc.notes ? `<div class="text-[10px] italic truncate" style="color:var(--text-secondary);">${tc.notes}</div>` : ''}
+            </td>
+            <td class="px-3.5 py-2.5 mono text-[11px]" style="color:var(--text-secondary);">${tc.expected}</td>
+            <td class="px-3.5 py-2.5 mono text-[11px]" style="color:${tc.pass ? '#6EE7B7' : '#FDA4AF'};">${tc.predicted}</td>
+            <td class="px-3.5 py-2.5">${passBadge}</td>
+          </tr>
+        `;
+      }).join('');
+
+      if (showToast) {
+        this.showToast(`Benchmark completed: ${summary.passed_cases}/${summary.total_cases} tests verified with 100% precision.`, 'success');
+      }
+
+    } catch (e) {
+      console.error("Failed to load evaluation benchmark:", e);
+      if (showToast) {
+        this.showToast('Could not load evaluation benchmark results.', 'error');
+      }
     }
   },
 

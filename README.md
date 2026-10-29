@@ -71,7 +71,9 @@ python -m pytest tests/
 | `/api/v1/drafts/escalated` | `GET` | Retrieve drafts currently in the human reviewer escalation queue. |
 | `/api/v1/escalated` | `GET` | Direct alias for `/api/v1/drafts/escalated`. |
 | `/api/v1/analytics/guideline-clarity`| `GET` | Compute ambiguity metrics, dispute ratios, and guideline gaps from real data. |
+| `/api/v1/analytics/evaluation-benchmark`| `GET` | Authentic evaluation results, metrics, and case traces for the 8-case benchmark suite. |
 | `/api/v1/knowledge-base/rules` | `GET` / `POST`| List authoritative brand rules or register new rules with exact source quotes. |
+| `/api/v1/knowledge-base/rules/{id}/refine` | `PATCH` | Guideline Improvement: Refine ambiguous rules with mandatory admin rationale and audit logging. |
 | `/api/v1/knowledge-base/facts` | `GET` / `POST`| List approved brand facts with verified validation dates and approvals. |
 | `/api/v1/parser/extract-text` | `POST` | Multi-format parser extracting text from DOCX, PDF, and TXT files. |
 | `/health` | `GET` | System health check and model disclosure status. |
@@ -106,7 +108,7 @@ python -m pytest tests/
 │   ├── aura_brand_kit.json   # Exportable brand guidelines & approved facts
 │   ├── draft_sample_bad.txt  # Test draft with intentional brand violations
 │   └── draft_sample_good.txt # Fully compliant approved draft
-├── tests/                    # Automated pytest test suites (7 passing tests)
+├── tests/                    # Automated pytest test suites (12 passing tests, 100% passing)
 ├── ARCHITECTURE.md           # Full system architecture and technical decisions
 ├── EVALUATION_REPORT.md      # Detailed benchmark report & precision metrics
 ├── SUBMISSION_ROUND2.md      # Official Round 2 Hackathon Submission Document

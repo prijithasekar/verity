@@ -121,11 +121,13 @@ class DeterministicChecker:
                     # Generate replacement recommendation
                     replacement = rule.preferred_pattern or ""
                     if rule.id == "TERM-12":
-                        # Preserve inflection or case
+                        # Preserve inflection or case using active preferred_pattern
+                        pref = rule.preferred_pattern or "customer"
                         if flagged.lower() == "client":
-                            replacement = "customer" if flagged.islower() else "Customer"
+                            replacement = pref.lower() if flagged.islower() else pref.capitalize()
                         elif flagged.lower() == "clients":
-                            replacement = "customers" if flagged.islower() else "Customers"
+                            base_plural = f"{pref}s" if not pref.endswith("s") else pref
+                            replacement = base_plural.lower() if flagged.islower() else base_plural.capitalize()
 
                     # For claim rules, verdict is UNVERIFIABLE to trigger human reviewer routing
                     verdict = "UNVERIFIABLE" if rule.category == "claim" else "VIOLATION"
